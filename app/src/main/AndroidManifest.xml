@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -14,13 +15,37 @@
         android:theme="@style/Theme.AidHub"
         tools:targetApi="31">
         <activity
+            android:name=".LauncherActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".admin.AdminActivity"
+            android:exported="false"
+            android:label="@string/title_activity_admin"
+            android:theme="@style/Theme.AidHub.NoActionBar" />
+        <activity
+            android:name=".ui.user.dashboard.UserDashboardActivity"
+            android:exported="false"
+            android:label="@string/title_activity_user_dashboard"
+            android:theme="@style/Theme.AidHub.NoActionBar" />
+        <activity
+            android:name=".ui.admin.dashboard.AdminDashboardActivity"
+            android:exported="false"
+            android:label="@string/title_activity_admin_dashboard"
+            android:theme="@style/Theme.AidHub.NoActionBar" />
+        <activity
             android:name=".auth.RegisterActivity"
             android:exported="false" />
         <activity
             android:name=".auth.LoginActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".user.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.AidHub.NoActionBar">

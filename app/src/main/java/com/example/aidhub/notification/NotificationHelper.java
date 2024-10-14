@@ -10,7 +10,7 @@ import android.net.Uri;
 
 import androidx.core.app.NotificationCompat;
 
-import com.example.aidhub.MainActivity;
+import com.example.aidhub.user.MainActivity;
 import com.example.aidhub.R;
 
 public class NotificationHelper {

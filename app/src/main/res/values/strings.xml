@@ -64,4 +64,11 @@
     <string name="phone">Phone:</string>
     <string name="names">Names</string>
     <string name="logout_button">logout button</string>
+    <string name="title_activity_admin_dashboard">AdminDashboardActivity</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
+    <string name="title_activity_user_dashboard">UserDashboardActivity</string>
+    <string name="title_activity_admin">AdminActivity</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="welcome">Welcome</string>
 </resources>

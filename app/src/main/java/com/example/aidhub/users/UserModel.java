@@ -1,4 +1,4 @@
-package com.example.aidhub.ui.users;
+package com.example.aidhub.users;
 
 public class UserModel {
     private String userId;
