@@ -55,7 +55,9 @@ public class LauncherActivity extends AppCompatActivity {
 
                 if (user !=null && "admin".equals(user.getUserType())) {
                     adminNavigate();
-                } else {
+                }
+
+                if (user !=null && "user".equals(user.getUserType())){
                     userNavigate();
                 }
             }

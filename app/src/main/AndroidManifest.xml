@@ -29,16 +29,6 @@
             android:label="@string/title_activity_admin"
             android:theme="@style/Theme.AidHub.NoActionBar" />
         <activity
-            android:name=".ui.user.dashboard.UserDashboardActivity"
-            android:exported="false"
-            android:label="@string/title_activity_user_dashboard"
-            android:theme="@style/Theme.AidHub.NoActionBar" />
-        <activity
-            android:name=".ui.admin.dashboard.AdminDashboardActivity"
-            android:exported="false"
-            android:label="@string/title_activity_admin_dashboard"
-            android:theme="@style/Theme.AidHub.NoActionBar" />
-        <activity
             android:name=".auth.RegisterActivity"
             android:exported="false" />
         <activity
@@ -47,13 +37,7 @@
         <activity
             android:name=".user.MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.AidHub.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
     </application>
 

@@ -45,13 +45,6 @@ public class MainActivity extends AppCompatActivity {
 
         currentUser = mAuth.getCurrentUser();
 
-        if (currentUser == null) {
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(intent);
-            finish();
-            return;
-        }
-
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -88,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_logout) {
             logoutUser();
             return true;
         }

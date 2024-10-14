@@ -11,6 +11,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.aidhub.LauncherActivity;
 import com.example.aidhub.user.MainActivity;
 import com.example.aidhub.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -66,7 +67,7 @@ public class LoginActivity extends AppCompatActivity {
                 FirebaseUser user = mAuth.getCurrentUser();
                 Toast.makeText(LoginActivity.this, "Login Successful.", Toast.LENGTH_SHORT).show();
 
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                Intent intent = new Intent(LoginActivity.this, LauncherActivity.class);
                 startActivity(intent);
                 finish();
             } else {
