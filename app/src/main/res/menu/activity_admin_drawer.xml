@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:showIn="navigation_view">
+    tools:showIn="admin_nav_view">
 
     <group android:checkableBehavior="single">
 
         <item
-            android:id="@+id/nav_user_chats"
-            android:title="@string/chats" />
+            android:id="@+id/nav_user_management"
+            android:title="@string/user" />
 
+        <item
+            android:id="@+id/nav_admin_chats"
+            android:title="@string/chats" />
     </group>
 </menu>

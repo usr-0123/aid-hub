@@ -71,4 +71,8 @@
     <string name="title_activity_admin">AdminActivity</string>
     <string name="nav_header_title">Android Studio</string>
     <string name="welcome">Welcome</string>
+    <string name="role">Role</string>
+    <string name="time">-:-</string>
+    <string name="chat">Chat</string>
+    <string name="new_chat">New Chat</string>
 </resources>

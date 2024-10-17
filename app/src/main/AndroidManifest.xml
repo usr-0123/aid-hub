@@ -15,6 +15,12 @@
         android:theme="@style/Theme.AidHub"
         tools:targetApi="31">
         <activity
+            android:name=".admin.ui.chats.forms.NewChatActivity"
+            android:exported="false" />
+        <activity
+            android:name=".messaging.MessagingActivity"
+            android:exported="false" />
+        <activity
             android:name=".LauncherActivity"
             android:exported="true">
             <intent-filter>
@@ -37,8 +43,7 @@
         <activity
             android:name=".user.MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.AidHub.NoActionBar">
-        </activity>
+            android:theme="@style/Theme.AidHub.NoActionBar" />
     </application>
 
 </manifest>

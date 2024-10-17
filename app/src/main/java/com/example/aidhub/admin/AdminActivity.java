@@ -43,7 +43,7 @@ public class AdminActivity extends AppCompatActivity {
         setSupportActionBar(binding.appBarAdmin.toolbar);
 
         DrawerLayout drawer = binding.drawerLayout;
-        NavigationView navigationView = binding.navView;
+        NavigationView navigationView = binding.adminNavView;
         View headerView = navigationView.getHeaderView(0);
 
         TextView navUserEmail = headerView.findViewById(R.id.adminEmailTextView);
@@ -55,7 +55,7 @@ public class AdminActivity extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
+                R.id.nav_user_management)
                 .setOpenableLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_admin);

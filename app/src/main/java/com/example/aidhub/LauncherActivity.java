@@ -30,7 +30,6 @@ public class LauncherActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_launcher);
 
         mAuth = FirebaseAuth.getInstance();
@@ -53,11 +52,11 @@ public class LauncherActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 UserModel user = snapshot.getValue(UserModel.class);
 
-                if (user !=null && "admin".equals(user.getUserType())) {
+                if (user !=null && "Admin".equals(user.getUserType())) {
                     adminNavigate();
                 }
 
-                if (user !=null && "user".equals(user.getUserType())){
+                if (user !=null && "User".equals(user.getUserType())){
                     userNavigate();
                 }
             }
