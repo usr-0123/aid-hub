@@ -5,8 +5,7 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.aidhub.databinding.ItemMessageBinding;
+import com.example.aidhub.databinding.ItemChatBinding;
 import com.example.aidhub.users.UserModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -14,7 +13,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
 import java.util.List;
 
 public class ChatsAdapter extends RecyclerView.Adapter<ChatsAdapter.ChatViewHolder> {
@@ -34,7 +32,7 @@ public class ChatsAdapter extends RecyclerView.Adapter<ChatsAdapter.ChatViewHold
     @NonNull
     @Override
     public ChatViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        ItemMessageBinding binding = ItemMessageBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+        ItemChatBinding binding = ItemChatBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
         return new ChatViewHolder(binding);
     }
 
@@ -89,9 +87,9 @@ public class ChatsAdapter extends RecyclerView.Adapter<ChatsAdapter.ChatViewHold
     }
 
     public static class ChatViewHolder extends RecyclerView.ViewHolder {
-        private final ItemMessageBinding binding;
+        private final ItemChatBinding binding;
 
-        public ChatViewHolder(@NonNull ItemMessageBinding binding) {
+        public ChatViewHolder(@NonNull ItemChatBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }

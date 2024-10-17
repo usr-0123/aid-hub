@@ -10,22 +10,23 @@ import android.net.Uri;
 
 import androidx.core.app.NotificationCompat;
 
-import com.example.aidhub.user.MainActivity;
+import com.example.aidhub.LauncherActivity;
 import com.example.aidhub.R;
 
-public class NotificationHelper {
 
-    public static final String CHANNEL_ID = "notifications_channel_id";
+public class ChatsNotificationHelper {
+
+    public static final String CHANNEL_ID = "messages_channel_id";
 
     // Method to create notification channel with high importance
     public static void createNotificationChannel(Context context) {
         NotificationChannel channel = new NotificationChannel(
                 CHANNEL_ID,
-                "Notifications Channel",
+                "Chats Channel",
                 NotificationManager.IMPORTANCE_HIGH
         );
 
-        channel.setDescription("Notifications channel.");
+        channel.setDescription("Notification channels for messages.");
 
         NotificationManager manager = context.getSystemService(NotificationManager.class);
         if (manager != null) {
@@ -34,25 +35,24 @@ public class NotificationHelper {
     }
 
     // Method to show heads-up notification with sender, message, and timestamp
-    public static void showNotification(Context context, String sender, String message, long timestamp) {
+    public static void showChatNotification(Context context, String chatId, String selectedUserId, String senderName, String message) {
         // Create the channel
         createNotificationChannel(context);
 
-        // Intent to open an activity when the notification is clicked
-        Intent intent = new Intent(context, MainActivity.class);
+        // Intent to open Activity when the notification is clicked
+        Intent intent = new Intent(context, LauncherActivity.class);
+        intent.putExtra("chatId", chatId);
+        intent.putExtra("selectedUserId", selectedUserId);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
 
         // Custom sound URI
         Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
-        // Format the timestamp (can be customized as per your requirements)
-        String timeString = android.text.format.DateFormat.format("hh:mm a", timestamp).toString();
-
         // Build the notification with high priority and a big text style
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_user_placeholder_foreground)
-                .setContentTitle(sender)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentTitle(senderName)
                 .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_MESSAGE)
