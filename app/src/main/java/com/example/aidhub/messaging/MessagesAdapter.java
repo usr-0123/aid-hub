@@ -61,11 +61,11 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
         if (message.getSenderId().equals(currentUserId)) {
             // Message sent by the current user
             holder.itemView.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
-//            holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.recipientMessageColor));
+            holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.recipientMessageColor));
             holder.messageTextView.setTextColor(ContextCompat.getColor(holder.messageTextView.getContext(), R.color.white));
         } else {
             // Message received from someone else
-//            holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.senderMessageColor));
+            holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.senderMessageColor));
             holder.itemView.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         }
     }

@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.aidhub.databinding.ItemChatBinding;
 import com.example.aidhub.users.UserModel;
 import com.google.firebase.auth.FirebaseAuth;
@@ -13,6 +14,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
 import java.util.List;
 
 public class ChatsAdapter extends RecyclerView.Adapter<ChatsAdapter.ChatViewHolder> {
@@ -66,6 +68,8 @@ public class ChatsAdapter extends RecyclerView.Adapter<ChatsAdapter.ChatViewHold
                         // Display the other user's first name and last name
                         String fullName = otherUser.getFirstName() + " " + otherUser.getLastName();
                         holder.binding.textViewChatId.setText(fullName);
+                    } else {
+                        holder.binding.textViewChatId.setText("Title");
                     }
                 }
 

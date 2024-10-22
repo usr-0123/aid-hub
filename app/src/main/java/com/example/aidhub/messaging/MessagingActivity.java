@@ -95,7 +95,7 @@ public class MessagingActivity extends AppCompatActivity {
                         participantName = user.getFirstName() + " " + user.getLastName();
                         chatParticipantNameTextView.setText(participantName);
                     } else {
-                        Toast.makeText(MessagingActivity.this, "Error fetching user info", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MessagingActivity.this, "Error fetching users info", Toast.LENGTH_SHORT).show();
                     }
                 }
 
@@ -161,7 +161,7 @@ public class MessagingActivity extends AppCompatActivity {
                             for (DataSnapshot childSnapshot : readBySnapshot.getChildren()) {
                                 String userId = childSnapshot.getValue(String.class);
                                 if (userId != null) {
-                                    readByList.add(userId); // Add each user ID to the list
+                                    readByList.add(userId);
                                 }
                             }
                         }
