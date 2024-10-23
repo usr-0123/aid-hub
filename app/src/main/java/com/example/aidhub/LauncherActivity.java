@@ -52,12 +52,18 @@ public class LauncherActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 UserModel user = snapshot.getValue(UserModel.class);
 
-                if (user !=null && "Admin".equals(user.getUserType())) {
-                    adminNavigate();
+                if (user !=null && ("admin".equals(user.getUserType()) || "Admin".equals(user.getUserType()))) {
+                    Intent intent = new Intent(LauncherActivity.this, AdminActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    finish();
                 }
 
-                if (user !=null && "User".equals(user.getUserType())){
-                    userNavigate();
+                if (user !=null && ("User".equals(user.getUserType()) || "user".equals(user.getUserType()))){
+                    Intent intent = new Intent(LauncherActivity.this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    finish();
                 }
             }
 
@@ -66,31 +72,5 @@ public class LauncherActivity extends AppCompatActivity {
 
             }
         });
-    }
-
-    private void adminNavigate() {
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Intent intent = new Intent(LauncherActivity.this, AdminActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-                finish();
-            }
-        }, 1000);
-
-    }
-
-    private void userNavigate() {
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Intent intent = new Intent(LauncherActivity.this, MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-                finish();
-            }
-        }, 1000);
-
     }
 }
