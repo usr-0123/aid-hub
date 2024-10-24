@@ -30,7 +30,7 @@ public class MessagesFragment extends Fragment {
 
     private FragmentMessagesBinding binding;
     private ChatsAdapter chatsAdapter;
-    private List<ChatModel> chatsList;
+    private List<ChatModel> chatsList = new ArrayList<>();
     private FirebaseAuth firebaseAuth;
     private String currentUserId;
     private Button newChatButton;
@@ -47,9 +47,6 @@ public class MessagesFragment extends Fragment {
 
         // Initialize RecyclerView
         binding.chatsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        // Initialize chats list
-        chatsList = new ArrayList<>();
 
         // Set up the adapter
         chatsAdapter = new ChatsAdapter(chatsList, this::openChatActivity);
@@ -128,7 +125,8 @@ public class MessagesFragment extends Fragment {
     }
 
     private void markMessagesAsRead(String chatId) {
-        DatabaseReference messagesRef = FirebaseDatabase.getInstance().getReference("chats").child(chatId).child("messages");
+        if (chatId == null) {return;}
+        DatabaseReference messagesRef = FirebaseDatabase.getInstance().getReference("messages").child(chatId);
 
         messagesRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

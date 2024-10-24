@@ -104,13 +104,13 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
                     String fullName = user.getFirstName() + " " + user.getLastName();
                     holder.senderTextView.setText(fullName);
                 } else {
-                    holder.senderTextView.setText("User");
+                    holder.senderTextView.setText(userId);
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                holder.senderTextView.setText("User");
+                holder.senderTextView.setText(userId);
             }
         });
     }

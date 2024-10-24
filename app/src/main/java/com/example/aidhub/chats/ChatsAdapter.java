@@ -69,7 +69,7 @@ public class ChatsAdapter extends RecyclerView.Adapter<ChatsAdapter.ChatViewHold
                         String fullName = otherUser.getFirstName() + " " + otherUser.getLastName();
                         holder.binding.textViewChatId.setText(fullName);
                     } else {
-                        holder.binding.textViewChatId.setText("Title");
+                        holder.binding.textViewChatId.setText("Chat");
                     }
                 }
 

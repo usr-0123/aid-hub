@@ -147,10 +147,11 @@ public class MessagingActivity extends AppCompatActivity {
 
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                         MessageModel message = snapshot.getValue(MessageModel.class);
-                        if (message != null) {
+                        if (message != null && message.getMessageId() != null) {
                             messageList.add(message);
 
-                            markMessageAsRead(chatId, message.getMessageId());
+                            if (!chatId.equals(message.getMessageId())) {
+                                markMessageAsRead(chatId, message.getMessageId());}
                         }
 
                         // Fetch the readBy list
@@ -183,11 +184,8 @@ public class MessagingActivity extends AppCompatActivity {
             });
         }
 
-//        private void sendChatMessageNotification(String chatId, String selectedUserId, String senderName, String message) {
-//            ChatsNotificationHelper.showChatNotification(this, chatId, selectedUserId, senderName, message);
-//        }
-
         private void markMessageAsRead(String chatId, String messageId) {
+            if (chatId == null || messageId == null) {return;}
             // Reference to the specific message's "readBy" field in Firebase
             DatabaseReference messageRef = FirebaseDatabase.getInstance().getReference("messages")
                     .child(chatId)
