@@ -13,5 +13,9 @@
             android:id="@+id/nav_admin_chats"
             android:title="@string/chats" />
 
+        <item
+            android:id="@+id/nav_admin_groups"
+            android:title="@string/groups" />
+
     </group>
 </menu>

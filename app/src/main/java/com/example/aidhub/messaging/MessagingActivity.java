@@ -1,7 +1,6 @@
 package com.example.aidhub.messaging;
 
 import static com.example.aidhub.notification.ChatsNotificationHelper.showChatNotification;
-
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.aidhub.R;
@@ -13,7 +12,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.aidhub.users.UserModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -167,7 +165,7 @@ public class MessagingActivity extends AppCompatActivity {
                             }
                         }
 
-//                         If the current user hasn't read this report, trigger a notification
+                        //  If the current user hasn't read this report, trigger a notification
                         if (!readByList.contains(currentUserId)) {
                             showChatNotification(MessagingActivity.this, chatId, selectedUserId, participantName, message.getMessage());
                         }
@@ -227,6 +225,4 @@ public class MessagingActivity extends AppCompatActivity {
             messagesAdapter = new MessagesAdapter(participantName, messageList, currentUserId);
             recyclerViewMessages.setAdapter(messagesAdapter);
         }
-
-
     }
