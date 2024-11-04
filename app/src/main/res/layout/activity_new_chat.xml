@@ -1,9 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".admin.ui.chats.forms.NewChatActivity">
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="16dp">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- Sender Selection Button -->
+    <Button
+        android:id="@+id/buttonSelectSender"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/select_sender"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Receiver Selection Button -->
+    <Button
+        android:id="@+id/buttonSelectReceiver"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/select_receiver"
+        android:layout_below="@id/buttonSelectSender"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Create Chat Button -->
+    <Button
+        android:id="@+id/buttonCreateChat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/create_chat"
+        android:layout_below="@id/buttonSelectReceiver"/>
+
+</RelativeLayout>

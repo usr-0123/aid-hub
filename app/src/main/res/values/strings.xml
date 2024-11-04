@@ -75,4 +75,7 @@
     <string name="time">-:-</string>
     <string name="chat">Chat</string>
     <string name="new_chat">New Chat</string>
+    <string name="select_sender">Select Sender</string>
+    <string name="select_receiver">Select Receiver</string>
+    <string name="create_chat">Create Chat</string>
 </resources>
