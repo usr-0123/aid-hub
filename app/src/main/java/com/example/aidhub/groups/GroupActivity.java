@@ -29,7 +29,7 @@ import java.util.List;
 public class GroupActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private EditText messageInputEditText;
-    private Button sendButton;
+    private Button sendButton, addUserButton;
     private MessagesAdapter adapter;
     private List<MessageModel> messageList = new ArrayList<>();
     private String groupId;
@@ -63,6 +63,10 @@ public class GroupActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.groupMessagesRecyclerView);
         messageInputEditText = findViewById(R.id.messageInputEditText);
         sendButton = findViewById(R.id.sendButton);
+
+        checkUserTypeAndSetButtonVisibility();
+
+        addUserButton = findViewById(R.id.addUserButton);
 
         // Setup RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -305,6 +309,26 @@ public class GroupActivity extends AppCompatActivity {
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 Toast.makeText(GroupActivity.this, "Failed to load users", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void checkUserTypeAndSetButtonVisibility() {
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users").child(currentUserId);
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                UserModel user = snapshot.getValue(UserModel.class);
+                if (user != null && ("admin".equals(user.getUserType()) || "Admin".equals(user.getUserType()))) {
+                    addUserButton.setVisibility(View.VISIBLE); // Show button for admins
+                } else {
+                    addUserButton.setVisibility(View.GONE); // Hide button for non-admins
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(GroupActivity.this, "Failed to fetch user type", Toast.LENGTH_SHORT).show();
             }
         });
     }
