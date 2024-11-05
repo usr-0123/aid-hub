@@ -91,4 +91,6 @@
     <string name="aid_management">Aid Management</string>
     <string name="request_aid">Request Aid</string>
     <string name="describe_your_need">Describe your need</string>
+    <string name="description">Description</string>
+    <string name="location">Location</string>
 </resources>

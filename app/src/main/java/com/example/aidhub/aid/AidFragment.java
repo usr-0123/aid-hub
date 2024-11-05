@@ -18,6 +18,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.aidhub.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -45,6 +47,10 @@ public class AidFragment extends Fragment {
     private String selectedService;
     private String userLatitude, userLongitude;
 
+    private RecyclerView aidRequestsRecyclerView;
+    private AidRequestAdapter aidRequestAdapter;
+    private List<AidRequestModel> aidRequestList;
+
     private FusedLocationProviderClient fusedLocationClient;
 
     @Nullable
@@ -68,6 +74,14 @@ public class AidFragment extends Fragment {
         requestLocation();
 
         requestButton.setOnClickListener(v -> submitRequest());
+
+        aidRequestsRecyclerView = rootView.findViewById(R.id.aidRequestsRecyclerView);
+        aidRequestsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        aidRequestList = new ArrayList<>();
+        aidRequestAdapter = new AidRequestAdapter(aidRequestList);
+        aidRequestsRecyclerView.setAdapter(aidRequestAdapter);
+
+        fetchAidRequests(); // Fetch and display existing aid requests
 
         return rootView;
     }
@@ -188,6 +202,28 @@ public class AidFragment extends Fragment {
                 Toast.makeText(getContext(), "Location permission denied.", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    private void fetchAidRequests() {
+        DatabaseReference requestsRef = FirebaseDatabase.getInstance().getReference("aid_requests");
+        requestsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                aidRequestList.clear();
+                for (DataSnapshot requestSnapshot : snapshot.getChildren()) {
+                    AidRequestModel aidRequest = requestSnapshot.getValue(AidRequestModel.class);
+                    if (aidRequest != null) {
+                        aidRequestList.add(aidRequest);
+                    }
+                }
+                aidRequestAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(), "Failed to load aid requests.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
 
