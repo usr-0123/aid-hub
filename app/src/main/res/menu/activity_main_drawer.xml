@@ -6,6 +6,10 @@
     <group android:checkableBehavior="single">
 
         <item
+            android:id="@+id/nav_user_aid"
+            android:title="@string/aid" />
+
+        <item
             android:id="@+id/nav_user_chats"
             android:title="@string/chats" />
 

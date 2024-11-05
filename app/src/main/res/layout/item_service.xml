@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp">
+
+    <!-- Service Title -->
+    <TextView
+        android:id="@+id/serviceTitleTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/service_title"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/editServiceButton"
+        android:layout_marginEnd="8dp" />
+
+    <!-- Service Description -->
+    <TextView
+        android:id="@+id/serviceDescriptionTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/brief_description_of_the_service"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@id/serviceTitleTextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/editServiceButton"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="4dp"
+        android:maxLines="2"
+        android:ellipsize="end" />
+
+    <!-- Edit Service Button -->
+    <ImageButton
+        android:id="@+id/editServiceButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/edit_service"
+        android:src="@drawable/ic_edit"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="@android:color/darker_gray"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:padding="8dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

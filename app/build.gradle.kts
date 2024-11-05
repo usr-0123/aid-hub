@@ -53,6 +53,9 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 
+    // Google service
+    implementation(libs.play.services.location)
+
     // Firebase
     // Firebase Bom
     implementation(platform(libs.firebase.bom))
