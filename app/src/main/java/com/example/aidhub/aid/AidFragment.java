@@ -20,7 +20,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.aidhub.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -32,7 +31,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,11 +44,9 @@ public class AidFragment extends Fragment {
     private ArrayAdapter<String> serviceAdapter;
     private String selectedService;
     private String userLatitude, userLongitude;
-
     private RecyclerView aidRequestsRecyclerView;
     private AidRequestAdapter aidRequestAdapter;
     private List<AidRequestModel> aidRequestList;
-
     private FusedLocationProviderClient fusedLocationClient;
 
     @Nullable
@@ -78,7 +74,7 @@ public class AidFragment extends Fragment {
         aidRequestsRecyclerView = rootView.findViewById(R.id.aidRequestsRecyclerView);
         aidRequestsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         aidRequestList = new ArrayList<>();
-        aidRequestAdapter = new AidRequestAdapter(aidRequestList);
+        aidRequestAdapter = new AidRequestAdapter(aidRequestList, getContext());
         aidRequestsRecyclerView.setAdapter(aidRequestAdapter);
 
         fetchAidRequests(); // Fetch and display existing aid requests

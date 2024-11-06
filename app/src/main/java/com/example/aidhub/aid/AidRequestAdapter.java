@@ -1,5 +1,7 @@
 package com.example.aidhub.aid;
 
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.aidhub.MapsActivity;
 import com.example.aidhub.R;
 
 import java.util.List;
@@ -14,9 +17,11 @@ import java.util.List;
 public class AidRequestAdapter extends RecyclerView.Adapter<AidRequestAdapter.AidRequestViewHolder> {
 
     private final List<AidRequestModel> aidRequestList;
+    private final Context context;
 
-    public AidRequestAdapter(List<AidRequestModel> aidRequestList) {
+    public AidRequestAdapter(List<AidRequestModel> aidRequestList, Context context) {
         this.aidRequestList = aidRequestList;
+        this.context = context;
     }
 
     @NonNull
@@ -33,6 +38,16 @@ public class AidRequestAdapter extends RecyclerView.Adapter<AidRequestAdapter.Ai
         holder.serviceTextView.setText(aidRequest.getService());
         holder.descriptionTextView.setText(aidRequest.getDescription());
         holder.locationTextView.setText("Location: " + aidRequest.getLatitude() + ", " + aidRequest.getLongitude());
+
+        // Set onClickListener to open MapActivity with location details
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, MapsActivity.class);
+            intent.putExtra("latitude", aidRequest.getLatitude());
+            intent.putExtra("longitude", aidRequest.getLongitude());
+            intent.putExtra("service", aidRequest.getService());
+            intent.putExtra("description", aidRequest.getDescription());
+            context.startActivity(intent);
+        });
     }
 
     @Override
