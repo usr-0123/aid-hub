@@ -74,6 +74,10 @@ dependencies {
 
     // Firebase storage
     implementation(libs.firebase.storage)
+
+    // Glide
+    implementation(libs.glide)
+    annotationProcessor(libs.compiler)
 }
 
 buildscript {

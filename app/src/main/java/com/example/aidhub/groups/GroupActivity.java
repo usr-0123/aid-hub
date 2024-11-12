@@ -11,6 +11,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 import com.example.aidhub.messaging.MessageModel;
 import com.example.aidhub.messaging.MessagesAdapter;
@@ -30,11 +31,10 @@ public class GroupActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private EditText messageInputEditText;
     private Button sendButton, addUserButton;
+    ImageButton attachmentBtn;
     private MessagesAdapter adapter;
     private List<MessageModel> messageList = new ArrayList<>();
-    private String groupId;
-    private String currentUserId;
-    private String senderName;
+    private String groupId, currentUserId, senderName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +67,7 @@ public class GroupActivity extends AppCompatActivity {
         checkUserTypeAndSetButtonVisibility();
 
         addUserButton = findViewById(R.id.addUserButton);
+        attachmentBtn = findViewById(R.id.attachmentButton);
 
         // Setup RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -85,6 +86,10 @@ public class GroupActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(GroupActivity.this, "Enter a message", Toast.LENGTH_SHORT).show();
             }
+        });
+
+        attachmentBtn.setOnClickListener(view -> {
+            Toast.makeText(GroupActivity.this, "Permission denied to access gallery", Toast.LENGTH_SHORT).show();
         });
     }
 

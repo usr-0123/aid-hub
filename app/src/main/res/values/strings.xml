@@ -94,4 +94,10 @@
     <string name="description">Description</string>
     <string name="location">Location</string>
     <string name="title_activity_maps">Map</string>
+    <string name="profile_picture_image">Profile picture image</string>
+    <string name="user_type">User Type</string>
+    <string name="membership_date">Membership date</string>
+    <string name="change_photo">Change Photo</string>
+    <string name="edit_details">Edit Details</string>
+    <string name="attach_image">Attach image</string>
 </resources>

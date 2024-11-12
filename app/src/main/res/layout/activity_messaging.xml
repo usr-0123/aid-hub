@@ -35,9 +35,20 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="8dp"
+        android:gravity="center_vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Attachment button -->
+        <ImageButton
+            android:id="@+id/attachmentButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="@string/attach_image"
+            android:src="@drawable/ic_menu_camera"
+            android:background="?attr/selectableItemBackgroundBorderless" />
 
         <EditText
             android:id="@+id/messageEditText"

@@ -1,0 +1,72 @@
+<!-- res/layout/fragment_profile.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <ImageView
+        android:id="@+id/profileImageView"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_gravity="center"
+        android:layout_margin="10dp"
+        android:contentDescription="@string/profile_picture_image"
+        android:src="@drawable/ic_user_placeholder_foreground"
+        android:scaleType="centerCrop" />
+
+    <TextView
+        android:id="@+id/nameTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/name"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_gravity="center"
+        android:layout_margin="10dp"
+        android:paddingTop="8dp" />
+
+    <TextView
+        android:id="@+id/emailTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/email_address"
+        android:layout_gravity="center"
+        android:layout_margin="10dp"
+        android:paddingTop="4dp" />
+
+    <TextView
+        android:id="@+id/phoneTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/phone_number"
+        android:layout_gravity="center"
+        android:layout_margin="10dp"
+        android:paddingTop="4dp" />
+
+    <TextView
+        android:id="@+id/createdAtTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/membership_date"
+        android:layout_gravity="center"
+        android:layout_margin="10dp"
+        android:paddingTop="4dp" />
+
+    <TextView
+        android:id="@+id/userTypeTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/user_type"
+        android:layout_gravity="center"
+        android:layout_margin="10dp"
+        android:paddingTop="4dp" />
+
+    <Button
+        android:id="@+id/edit_details_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="100dp"
+        android:text="@string/edit_details" />
+
+</LinearLayout>

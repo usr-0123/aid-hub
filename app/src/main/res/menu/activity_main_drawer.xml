@@ -17,5 +17,9 @@
             android:id="@+id/nav_user_groups"
             android:title="@string/groups" />
 
+        <item
+            android:id="@+id/nav_user_profile"
+            android:title="@string/profile" />
+
     </group>
 </menu>

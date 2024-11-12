@@ -57,27 +57,6 @@ public class NewChatActivity extends AppCompatActivity {
         });
     }
 
-//    private void createNewChat() {
-//        chatId = chatsRef.push().getKey(); // Generate a new chat ID
-//        if (chatId != null) {
-//            Map<String, Object> chatData = new HashMap<>();
-//            List<String> members = new ArrayList<>();
-//            members.add(selectedSenderId);
-//            members.add(selectedRecipientId);
-//            chatData.put("members", members);
-//            chatData.put("createdAt", System.currentTimeMillis());
-//            chatData.put("updatedAt", System.currentTimeMillis());
-//
-//            chatsRef.child(chatId).setValue(chatData).addOnCompleteListener(task -> {
-//                if (task.isSuccessful()) {
-//                    Toast.makeText(NewChatActivity.this, "Created chat successfully.", Toast.LENGTH_SHORT).show();
-//                } else {
-//                    Toast.makeText(NewChatActivity.this, "Failed to create chat.", Toast.LENGTH_SHORT).show();
-//                }
-//            });
-//        }
-//    }
-
     private void createNewChat() {
         if (selectedSenderId == null || selectedRecipientId == null) {
             Toast.makeText(this, "Please select both sender and recipient", Toast.LENGTH_SHORT).show();

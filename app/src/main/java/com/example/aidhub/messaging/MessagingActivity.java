@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.aidhub.R;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -25,13 +26,12 @@ import java.util.List;
 
 public class MessagingActivity extends AppCompatActivity {
 
-        private String chatId;
-        private String selectedUserId;
-        private String currentUserId;
+        private String chatId, selectedUserId, currentUserId, participantName;
         private TextView chatParticipantNameTextView;
         private RecyclerView recyclerViewMessages;
         private MessagesAdapter messagesAdapter;
-        private String participantName;
+        Button buttonSend;
+        ImageButton attachmentBtn;
 
         @Override
         protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,7 +42,8 @@ public class MessagingActivity extends AppCompatActivity {
             chatParticipantNameTextView = findViewById(R.id.chatParticipantNameTextView);
             recyclerViewMessages = findViewById(R.id.chatMessagesRecyclerView);
             EditText editTextMessage = findViewById(R.id.messageEditText);
-            Button buttonSend = findViewById(R.id.sendMessageButton);
+            buttonSend = findViewById(R.id.sendMessageButton);
+            attachmentBtn = findViewById(R.id.attachmentButton);
 
             // Set up RecyclerView
             recyclerViewMessages.setHasFixedSize(true);
@@ -80,6 +81,10 @@ public class MessagingActivity extends AppCompatActivity {
                     sendMessage(messageText, currentUserId, chatId);
                     editTextMessage.setText(""); // Clear the input after sending
                 }
+            });
+
+            attachmentBtn.setOnClickListener(view -> {
+                Toast.makeText(this, "Permission denied to access gallery.", Toast.LENGTH_SHORT).show();
             });
         }
 
