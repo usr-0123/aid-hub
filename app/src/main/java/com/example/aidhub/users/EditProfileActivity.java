@@ -27,7 +27,6 @@ import com.google.firebase.storage.StorageReference;
 public class EditProfileActivity extends AppCompatActivity {
 
     private static final int PICK_IMAGE_REQUEST = 1;
-    private static final int STORAGE_PERMISSION_REQUEST = 2;
 
     private EditText firstNameEditText, lastNameEditText, emailEditText, phoneEditText;
     private ImageView profileImageView;
@@ -54,24 +53,11 @@ public class EditProfileActivity extends AppCompatActivity {
         // Button to save profile changes
         saveButton.setOnClickListener(view -> saveProfileChanges());
 
-        changePhotoButton.setOnClickListener(view -> requestStoragePermission());
-    }
-
-    private void requestStoragePermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    STORAGE_PERMISSION_REQUEST);
-        } else {
-            openGallery();
-        }
-    }
-
-    private void openGallery() {
-        Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setType("image/*");
-        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+        changePhotoButton.setOnClickListener(view -> {
+            Intent intent = new Intent(Intent.ACTION_PICK);
+            intent.setType("image/*");
+            startActivityForResult(intent, PICK_IMAGE_REQUEST);
+        });
     }
 
     @Override
@@ -93,18 +79,6 @@ public class EditProfileActivity extends AppCompatActivity {
                     Toast.makeText(EditProfileActivity.this, "Profile image updated", Toast.LENGTH_SHORT).show();
                 }))
                 .addOnFailureListener(e -> Toast.makeText(EditProfileActivity.this, "Failed to upload image", Toast.LENGTH_SHORT).show());
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == STORAGE_PERMISSION_REQUEST) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                openGallery();
-            } else {
-                Toast.makeText(this, "Permission denied to access gallery", Toast.LENGTH_SHORT).show();
-            }
-        }
     }
 
     private void saveProfileChanges() {
