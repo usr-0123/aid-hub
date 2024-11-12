@@ -1,9 +1,14 @@
 package com.example.aidhub.messaging;
 
 import static com.example.aidhub.notification.ChatsNotificationHelper.showChatNotification;
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-import com.example.aidhub.R;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -11,8 +16,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.example.aidhub.R;
 import com.example.aidhub.users.UserModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -21,124 +29,146 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MessagingActivity extends AppCompatActivity {
 
-        private String chatId, selectedUserId, currentUserId, participantName;
-        private TextView chatParticipantNameTextView;
-        private RecyclerView recyclerViewMessages;
-        private MessagesAdapter messagesAdapter;
-        Button buttonSend;
-        ImageButton attachmentBtn;
+    private String chatId, selectedUserId, currentUserId, participantName;
+    private TextView chatParticipantNameTextView;
+    private RecyclerView recyclerViewMessages;
+    private MessagesAdapter messagesAdapter;
+    private Button buttonSend;
+    private ImageButton attachmentBtn;
 
-        @Override
-        protected void onCreate(@Nullable Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_messaging);
+    private static final int STORAGE_PERMISSION_CODE = 1;
 
-            // Initialize views
-            chatParticipantNameTextView = findViewById(R.id.chatParticipantNameTextView);
-            recyclerViewMessages = findViewById(R.id.chatMessagesRecyclerView);
-            EditText editTextMessage = findViewById(R.id.messageEditText);
-            buttonSend = findViewById(R.id.sendMessageButton);
-            attachmentBtn = findViewById(R.id.attachmentButton);
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_messaging);
 
-            // Set up RecyclerView
-            recyclerViewMessages.setHasFixedSize(true);
-            recyclerViewMessages.setLayoutManager(new LinearLayoutManager(this));
-            messagesAdapter = new MessagesAdapter(participantName, new ArrayList<>(), currentUserId);
-            recyclerViewMessages.setAdapter(messagesAdapter);
+        // Initialize views
+        chatParticipantNameTextView = findViewById(R.id.chatParticipantNameTextView);
+        recyclerViewMessages = findViewById(R.id.chatMessagesRecyclerView);
+        EditText editTextMessage = findViewById(R.id.messageEditText);
+        buttonSend = findViewById(R.id.sendMessageButton);
+        attachmentBtn = findViewById(R.id.attachmentButton);
 
-            // Retrieve chat ID and selected user from Intent
-            chatId = getIntent().getStringExtra("chatId");
-            selectedUserId = getIntent().getStringExtra("selectedUserId");
+        // Set up RecyclerView
+        recyclerViewMessages.setHasFixedSize(true);
+        recyclerViewMessages.setLayoutManager(new LinearLayoutManager(this));
+        messagesAdapter = new MessagesAdapter(participantName, new ArrayList<>(), currentUserId);
+        recyclerViewMessages.setAdapter(messagesAdapter);
 
-            // Fetch current user ID from FirebaseAuth
-            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-            if (currentUser != null) {
-                currentUserId = currentUser.getUid();
-            } else {
-                Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
-                finish();
-                return; // Exit the activity if no user is logged in
-            }
+        // Retrieve chat ID and selected user from Intent
+        chatId = getIntent().getStringExtra("chatId");
+        selectedUserId = getIntent().getStringExtra("selectedUserId");
 
-            if (chatId != null && selectedUserId != null) {
-                // Proceed with chat setup
-                fetchAndDisplayParticipantName(selectedUserId);
-                fetchMessages(chatId);
-            } else {
-                Toast.makeText(this, "Error loading chat", Toast.LENGTH_SHORT).show();
-                finish();
-            }
-
-            // Send message on button click
-            buttonSend.setOnClickListener(v -> {
-                String messageText = editTextMessage.getText().toString().trim();
-                if (!messageText.isEmpty()) {
-                    sendMessage(messageText, currentUserId, chatId);
-                    editTextMessage.setText(""); // Clear the input after sending
-                }
-            });
-
-            attachmentBtn.setOnClickListener(view -> {
-                Toast.makeText(this, "Permission denied to access gallery.", Toast.LENGTH_SHORT).show();
-            });
+        // Fetch current user ID from FirebaseAuth
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            currentUserId = currentUser.getUid();
+        } else {
+            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
         }
 
-        private void fetchAndDisplayParticipantName(String userId) {
-            DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(userId);
-            userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    UserModel user = dataSnapshot.getValue(UserModel.class);
-                    if (user != null) {
-                        participantName = user.getFirstName() + " " + user.getLastName();
-                        chatParticipantNameTextView.setText(participantName);
-                    } else {
-                        Toast.makeText(MessagingActivity.this, "Error fetching users info", Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                    Toast.makeText(MessagingActivity.this, "Error loading chat", Toast.LENGTH_SHORT).show();
-                }
-            });
+        if (chatId != null && selectedUserId != null) {
+            fetchAndDisplayParticipantName(selectedUserId);
+            fetchMessages(chatId);
+        } else {
+            Toast.makeText(this, "Error loading chat", Toast.LENGTH_SHORT).show();
+            finish();
         }
 
-        private void sendMessage(String messageText, String senderId, String chatId) {
-            // Reference to the messages node in the Firebase database
-            DatabaseReference messagesRef = FirebaseDatabase.getInstance().getReference("messages").child(chatId);
+        // Send message on button click
+        buttonSend.setOnClickListener(v -> {
+            String messageText = editTextMessage.getText().toString().trim();
+            if (!messageText.isEmpty()) {
+                sendMessage(messageText, currentUserId, chatId, "text");
+                editTextMessage.setText(""); // Clear the input after sending
+            }
+        });
 
-            // Generate a new message ID
-            String messageId = messagesRef.push().getKey();
+        // Setup attachment button functionality
+        attachmentBtn.setOnClickListener(view -> {
+            Intent intent = new Intent(Intent.ACTION_PICK);
+            intent.setType("image/*");
+            startActivityForResult(intent, STORAGE_PERMISSION_CODE);
+        });
+    }
 
-            List<String> readBy = new ArrayList<>();
-            readBy.add(currentUserId);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @NonNull Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-            // Create a new message object
-            MessageModel message = new MessageModel(
-                    chatId,
-                    "",
-                    messageText,
-                    senderId,
-                    System.currentTimeMillis() + "",
-                    "text",
-                    readBy
-            );
+        if (requestCode == STORAGE_PERMISSION_CODE && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            Uri imageUri = data.getData();
+            uploadImageToFirebase(imageUri);
+        }
+    }
 
-            // Store the message in Firebase under the generated messageId
-            messagesRef.child(messageId).setValue(message).addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    Toast.makeText(MessagingActivity.this, "Message sent", Toast.LENGTH_SHORT).show();
+    private void uploadImageToFirebase(Uri imageUri) {
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("message_images/" + System.currentTimeMillis());
+        storageRef.putFile(imageUri).addOnSuccessListener(taskSnapshot ->
+                storageRef.getDownloadUrl().addOnSuccessListener(uri -> sendMessage(uri.toString(), currentUserId, chatId, "image"))
+        ).addOnFailureListener(e ->
+                Toast.makeText(MessagingActivity.this, "Failed to upload image", Toast.LENGTH_SHORT).show()
+        );
+    }
+
+    private void fetchAndDisplayParticipantName(String userId) {
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(userId);
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                UserModel user = dataSnapshot.getValue(UserModel.class);
+                if (user != null) {
+                    participantName = user.getFirstName() + " " + user.getLastName();
+                    chatParticipantNameTextView.setText(participantName);
                 } else {
-                    Toast.makeText(MessagingActivity.this, "Failed to send message", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MessagingActivity.this, "Error fetching user info", Toast.LENGTH_SHORT).show();
                 }
-            });
-        }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(MessagingActivity.this, "Error loading chat", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void sendMessage(String content, String senderId, String chatId, String messageType) {
+        DatabaseReference messagesRef = FirebaseDatabase.getInstance().getReference("messages").child(chatId);
+        String messageId = messagesRef.push().getKey();
+
+        List<String> readBy = new ArrayList<>();
+        readBy.add(currentUserId);
+
+        String mediaUrl = messageType.equals("image") ? content : "";
+
+        MessageModel message = new MessageModel(
+                messageId,
+                mediaUrl,
+                messageType.equals("text") ? content : "",
+                senderId,
+                System.currentTimeMillis() + "",
+                messageType,
+                readBy
+        );
+
+        messagesRef.child(messageId).setValue(message).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(MessagingActivity.this, "Message sent", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(MessagingActivity.this, "Failed to send message", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
         private void fetchMessages(String chatId) {
             DatabaseReference messagesRef = FirebaseDatabase.getInstance().getReference("messages").child(chatId);

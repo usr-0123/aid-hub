@@ -1,5 +1,7 @@
 package com.example.aidhub.groups;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.aidhub.R;
@@ -24,6 +26,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,92 +35,106 @@ public class GroupActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private EditText messageInputEditText;
     private Button sendButton, addUserButton;
-    ImageButton attachmentBtn;
+    private ImageButton attachmentBtn;
     private MessagesAdapter adapter;
     private List<MessageModel> messageList = new ArrayList<>();
     private String groupId, currentUserId, senderName;
+    private static final int PICK_IMAGE_REQUEST = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group);
 
-        // Fetch current user ID from FirebaseAuth
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             currentUserId = currentUser.getUid();
         } else {
             Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
             finish();
-            return; // Exit the activity if no user is logged in
+            return;
         }
 
-        // Retrieve the group name from the intent
         String groupName = getIntent().getStringExtra("groupName");
         groupId = getIntent().getStringExtra("groupId");
 
-        // Set the group name on the toolbar or a TextView
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(groupName); // Set title on the toolbar
+            getSupportActionBar().setTitle(groupName);
         }
 
         recyclerView = findViewById(R.id.groupMessagesRecyclerView);
         messageInputEditText = findViewById(R.id.messageInputEditText);
         sendButton = findViewById(R.id.sendButton);
-
-        checkUserTypeAndSetButtonVisibility();
-
         addUserButton = findViewById(R.id.addUserButton);
         attachmentBtn = findViewById(R.id.attachmentButton);
 
-        // Setup RecyclerView
+        checkUserTypeAndSetButtonVisibility();
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new MessagesAdapter(senderName, messageList, currentUserId);
         recyclerView.setAdapter(adapter);
 
-        // Fetch group messages
         fetchGroupMessages(groupId);
 
-        // Send button listener
         sendButton.setOnClickListener(v -> {
             String messageText = messageInputEditText.getText().toString().trim();
             if (!TextUtils.isEmpty(messageText)) {
-                sendMessageToGroup(messageText, groupId);
-                messageInputEditText.setText(""); // Clear input field
+                sendMessageToGroup(messageText, groupId, "text");
+                messageInputEditText.setText("");
             } else {
                 Toast.makeText(GroupActivity.this, "Enter a message", Toast.LENGTH_SHORT).show();
             }
         });
 
         attachmentBtn.setOnClickListener(view -> {
-            Toast.makeText(GroupActivity.this, "Permission denied to access gallery", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(Intent.ACTION_PICK);
+            intent.setType("image/*");
+            startActivityForResult(intent, PICK_IMAGE_REQUEST);
         });
     }
 
-    private void sendMessageToGroup(String messageText, String groupId) {
-        // Get a reference to the group messages node
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @NonNull Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            Uri imageUri = data.getData();
+            uploadImageToFirebase(imageUri);
+        }
+    }
+
+    private void uploadImageToFirebase(Uri imageUri) {
+        if (imageUri != null) {
+            String fileName = "images/" + System.currentTimeMillis() + ".jpg";
+            StorageReference storageRef = FirebaseStorage.getInstance().getReference(fileName);
+
+            storageRef.putFile(imageUri).addOnSuccessListener(taskSnapshot ->
+                    storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                        sendMessageToGroup(uri.toString(), groupId, "image");
+                    })
+            ).addOnFailureListener(e ->
+                    Toast.makeText(GroupActivity.this, "Failed to upload image", Toast.LENGTH_SHORT).show()
+            );
+        }
+    }
+
+    private void sendMessageToGroup(String content, String groupId, String messageType) {
         DatabaseReference groupMessagesRef = FirebaseDatabase.getInstance().getReference("groupMessages").child(groupId);
-
-        // Generate a unique message ID
         String messageId = groupMessagesRef.push().getKey();
-
-        // Get the current user ID (sender)
         String senderId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         List<String> readBy = new ArrayList<>();
         readBy.add(senderId);
 
-        // Create a message object
         MessageModel message = new MessageModel(
                 messageId,
-                "",
-                messageText,
+                messageType.equals("image") ? content : "",
+                messageType.equals("text") ? content : "",
                 senderId,
-                System.currentTimeMillis() + "",
-                "text",
+                String.valueOf(System.currentTimeMillis()),
+                messageType,
                 readBy
         );
 
-        // Save the message under the groupId
         groupMessagesRef.child(messageId).setValue(message).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 Toast.makeText(GroupActivity.this, "Message sent", Toast.LENGTH_SHORT).show();
