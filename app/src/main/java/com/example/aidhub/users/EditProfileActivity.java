@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -32,6 +33,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private ImageView profileImageView;
     private Button changePhotoButton, saveButton;
     private DatabaseReference databaseReference;
+    private StorageReference storageRef;
     private FirebaseUser currentUser;
 
     @Override
@@ -71,14 +73,28 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     private void uploadImageToFirebase(Uri imageUri) {
-        StorageReference storageRef = FirebaseStorage.getInstance().getReference("profile_images/" + currentUser.getUid() + ".jpg");
-        storageRef.putFile(imageUri)
-                .addOnSuccessListener(taskSnapshot -> storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                    String downloadUrl = uri.toString();
-                    databaseReference.child("profileImage").setValue(downloadUrl);
-                    Toast.makeText(EditProfileActivity.this, "Profile image updated", Toast.LENGTH_SHORT).show();
-                }))
-                .addOnFailureListener(e -> Toast.makeText(EditProfileActivity.this, "Failed to upload image", Toast.LENGTH_SHORT).show());
+        StorageReference attachmentRef = FirebaseStorage.getInstance().getReference()
+                .child("profile_images/" + currentUser.getUid() + "/" + imageUri.getLastPathSegment());
+
+        attachmentRef.putFile(imageUri)
+                .addOnSuccessListener(taskSnapshot -> attachmentRef.getDownloadUrl()
+                        .addOnCompleteListener(urlTask -> {
+                            if (urlTask.isSuccessful()) {
+                                Uri uri = urlTask.getResult();
+                                if (uri != null) {
+                                    String downloadUrl = uri.toString();
+                                    databaseReference.child("profileImage").setValue(downloadUrl);
+                                    Toast.makeText(EditProfileActivity.this, "Profile image updated", Toast.LENGTH_SHORT).show();
+                                }
+                            } else {
+                                Toast.makeText(EditProfileActivity.this, "Failed to retrieve image URL.", Toast.LENGTH_SHORT).show();
+                                Log.e("EditProfileActivity", "Failed to retrieve image URL: " + urlTask.getException());
+                            }
+                        }))
+                .addOnFailureListener(e -> {
+                        Toast.makeText(EditProfileActivity.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
+                    Log.e("EditProfileActivity", "Failed to upload image", e);
+                });
     }
 
     private void saveProfileChanges() {

@@ -100,4 +100,6 @@
     <string name="change_photo">Change Photo</string>
     <string name="edit_details">Edit Details</string>
     <string name="attach_image">Attach image</string>
+    <string name="message_image">Message Image</string>
+    <string name="image_view">Image view</string>
 </resources>

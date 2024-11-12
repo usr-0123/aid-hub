@@ -1,15 +1,19 @@
 package com.example.aidhub.messaging;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.aidhub.R;
+import com.example.aidhub.image.ImageViewActivity;
 import com.example.aidhub.users.UserModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -47,11 +51,31 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
     @Override
     public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
         MessageModel message = messages.get(position);
+        String mediaUrl = message.getMediaUrl();
 
         // Fetch sender's name dynamically based on senderId
         fetchAndDisplaySenderName(holder, message.getSenderId());
 
         holder.messageTextView.setText(message.getMessage());
+
+        if (mediaUrl != null && !mediaUrl.isEmpty()) {
+            holder.messageImageView.setVisibility(View.VISIBLE);
+            // Use Glide to load the image from the URL
+            Glide.with(holder.itemView.getContext())
+                    .load(mediaUrl)
+                    .placeholder(R.drawable.ic_menu_gallery)
+                    .error(R.drawable.ic_menu_camera)
+                    .into(holder.messageImageView);
+
+            // Set OnClickListener to open ImageViewActivity with the image URI
+            holder.messageImageView.setOnClickListener(view -> {
+                Intent intent = new Intent(holder.itemView.getContext(), ImageViewActivity.class);
+                intent.putExtra("imageUri", mediaUrl);  // Pass the URI as an extra
+                holder.itemView.getContext().startActivity(intent);
+            });
+        } else {
+            holder.messageImageView.setVisibility(View.GONE);
+        }
 
         // Format the timestamp to display a readable time
         String formattedTimestamp = formatTimestamp(message.getTimestamp());
@@ -76,15 +100,15 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
     }
 
     public static class MessageViewHolder extends RecyclerView.ViewHolder {
-        TextView senderTextView;
-        TextView messageTextView;
-        TextView timeTextView;
+        TextView senderTextView, messageTextView, timeTextView;
+        ImageView messageImageView;
 
         public MessageViewHolder(@NonNull View itemView) {
             super(itemView);
             senderTextView = itemView.findViewById(R.id.senderTextView);
             messageTextView = itemView.findViewById(R.id.messageTextView);
             timeTextView = itemView.findViewById(R.id.timestampTextView);
+            messageImageView = itemView.findViewById(R.id.messageImageView);
         }
     }
 
