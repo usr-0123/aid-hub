@@ -26,6 +26,8 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -42,7 +44,7 @@ public class AidFragment extends Fragment {
     private DatabaseReference servicesRef;
     private List<ServiceModel> serviceList;
     private ArrayAdapter<String> serviceAdapter;
-    private String selectedService;
+    private String selectedService, seekerId;
     private String userLatitude, userLongitude;
     private RecyclerView aidRequestsRecyclerView;
     private AidRequestAdapter aidRequestAdapter;
@@ -53,6 +55,20 @@ public class AidFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_aid, container, false);
+
+        // Get the FirebaseAuth instance
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+
+        // Get the currently logged-in user
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+
+        if (currentUser != null) {
+            // User is logged in, retrieve user information
+            seekerId = currentUser.getUid();
+        }
+
+        // Initialize Firebase Database reference
+        DatabaseReference chatsRef = FirebaseDatabase.getInstance().getReference("chats");
 
         serviceSpinner = rootView.findViewById(R.id.serviceSpinner);
         descriptionEditText = rootView.findViewById(R.id.descriptionEditText);
@@ -74,7 +90,7 @@ public class AidFragment extends Fragment {
         aidRequestsRecyclerView = rootView.findViewById(R.id.aidRequestsRecyclerView);
         aidRequestsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         aidRequestList = new ArrayList<>();
-        aidRequestAdapter = new AidRequestAdapter(aidRequestList, getContext());
+        aidRequestAdapter = new AidRequestAdapter(aidRequestList, getContext(), chatsRef, seekerId);
         aidRequestsRecyclerView.setAdapter(aidRequestAdapter);
 
         fetchAidRequests(); // Fetch and display existing aid requests
@@ -175,7 +191,7 @@ public class AidFragment extends Fragment {
         DatabaseReference requestsRef = FirebaseDatabase.getInstance().getReference("aid_requests");
         String requestId = requestsRef.push().getKey();
 
-        AidRequestModel aidRequest = new AidRequestModel(requestId, selectedService, description, userLatitude, userLongitude);
+        AidRequestModel aidRequest = new AidRequestModel(requestId, selectedService, description, userLatitude, userLongitude, seekerId);
         requestsRef.child(requestId).setValue(aidRequest)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(getContext(), "Aid request submitted successfully", Toast.LENGTH_SHORT).show();
@@ -185,6 +201,7 @@ public class AidFragment extends Fragment {
                     serviceSpinner.setSelection(0);
                     userLatitude = null;
                     userLongitude = null;
+                    seekerId = null;
                 })
                 .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to submit aid request", Toast.LENGTH_SHORT).show());
     }
