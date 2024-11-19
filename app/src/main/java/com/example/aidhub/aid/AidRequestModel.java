@@ -7,18 +7,20 @@ public class AidRequestModel {
     private String latitude;
     private String longitude;
     private String seekerId;
+    private Boolean approved;
 
     // Default constructor required for calls to DataSnapshot.getValue(AidRequestModel.class)
     public AidRequestModel() {}
 
     // Parameterized constructor
-    public AidRequestModel(String requestId, String service, String description, String latitude, String longitude, String seekerId) {
+    public AidRequestModel(String requestId, String service, String description, String latitude, String longitude, String seekerId,  Boolean approved) {
         this.requestId = requestId;
         this.service = service;
         this.description = description;
         this.latitude = latitude;
         this.longitude = longitude;
         this.seekerId = seekerId;
+        this.approved = approved;
     }
 
     // Getters and Setters
@@ -65,6 +67,10 @@ public class AidRequestModel {
     public String getSeekerId() {return seekerId;}
 
     public void setSeekerId(String seekerId) {this.seekerId = seekerId;}
+
+    public Boolean getApproved() {return approved;}
+
+    public void setApproved(Boolean approved) {this.approved = approved;}
 
     @Override
     public String toString() {

@@ -16,6 +16,7 @@ import com.example.aidhub.messaging.MessagingActivity;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,24 +52,13 @@ public class AidRequestAdapter extends RecyclerView.Adapter<AidRequestAdapter.Ai
         holder.descriptionTextView.setText(aidRequest.getDescription());
         holder.locationTextView.setText("Location: " + aidRequest.getLatitude() + ", " + aidRequest.getLongitude());
 
-        // Set onClickListener to open MapActivity with location details
         holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, MapsActivity.class);
-            intent.putExtra("latitude", aidRequest.getLatitude());
-            intent.putExtra("longitude", aidRequest.getLongitude());
-            intent.putExtra("service", aidRequest.getService());
-            intent.putExtra("description", aidRequest.getDescription());
-            intent.putExtra("seekerId", aidRequest.getSeekerId());
-            context.startActivity(intent);
-        });
-
-        holder.itemView.setOnLongClickListener(v -> {
             // Create an AlertDialog builder
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle("Select an Option");
 
             // Options to display
-            String[] options = {"Chat", "Approve", "Cancel"};
+            String[] options = {"Chat", "Location", "Approve", "Cancel"};
 
             // Set the options in the dialog
             builder.setItems(options, (dialog, which) -> {
@@ -78,12 +68,28 @@ public class AidRequestAdapter extends RecyclerView.Adapter<AidRequestAdapter.Ai
                         createNewChat(aidRequest.getSeekerId());
                         break;
 
-                    case 1: // Approve
-                        // Handle Approve option
+                    case 1: // maps
+                        Intent intent = new Intent(context, MapsActivity.class);
+                        intent.putExtra("latitude", aidRequest.getLatitude());
+                        intent.putExtra("longitude", aidRequest.getLongitude());
+                        intent.putExtra("service", aidRequest.getService());
+                        intent.putExtra("description", aidRequest.getDescription());
+                        intent.putExtra("seekerId", aidRequest.getSeekerId());
+                        context.startActivity(intent);
+                        break;
+
+                    case 2: // Approve
+                        // Update the approved field in the database
+                        DatabaseReference aidRequestRef = FirebaseDatabase.getInstance().getReference("aid_requests")
+                                .child(aidRequest.getRequestId()); // Assuming you have a unique requestId field in AidRequestModel
+
+                        aidRequestRef.child("approved").setValue(true)
+                                .addOnSuccessListener(aVoid -> Toast.makeText(context, "Request approved!", Toast.LENGTH_SHORT).show())
+                                .addOnFailureListener(e -> Toast.makeText(context, "Failed to approve request.", Toast.LENGTH_SHORT).show());
                         Toast.makeText(context, "Approved!", Toast.LENGTH_SHORT).show();
                         break;
 
-                    case 2: // Cancel
+                    case 3: // Cancel
                         // Handle Cancel (Do nothing or close dialog)
                         dialog.dismiss();
                         break;
@@ -92,9 +98,7 @@ public class AidRequestAdapter extends RecyclerView.Adapter<AidRequestAdapter.Ai
 
             // Show the dialog
             builder.show();
-            return true; // Return true to indicate the event is consumed
         });
-
     }
 
     private void createNewChat(String recipientId) {

@@ -190,8 +190,9 @@ public class AidFragment extends Fragment {
 
         DatabaseReference requestsRef = FirebaseDatabase.getInstance().getReference("aid_requests");
         String requestId = requestsRef.push().getKey();
+        Boolean approved = false;
 
-        AidRequestModel aidRequest = new AidRequestModel(requestId, selectedService, description, userLatitude, userLongitude, seekerId);
+        AidRequestModel aidRequest = new AidRequestModel(requestId, selectedService, description, userLatitude, userLongitude, seekerId, approved);
         requestsRef.child(requestId).setValue(aidRequest)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(getContext(), "Aid request submitted successfully", Toast.LENGTH_SHORT).show();
@@ -225,7 +226,7 @@ public class AidFragment extends Fragment {
                 aidRequestList.clear();
                 for (DataSnapshot requestSnapshot : snapshot.getChildren()) {
                     AidRequestModel aidRequest = requestSnapshot.getValue(AidRequestModel.class);
-                    if (aidRequest != null) {
+                    if (aidRequest != null && !Boolean.TRUE.equals(aidRequest.getApproved())) {
                         aidRequestList.add(aidRequest);
                     }
                 }
