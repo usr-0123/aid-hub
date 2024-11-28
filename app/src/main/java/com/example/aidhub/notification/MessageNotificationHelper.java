@@ -13,7 +13,7 @@ import com.example.aidhub.groups.GroupActivity;
 
 public class MessageNotificationHelper {
 
-    public static final String CHANNEL_ID = "messages_channel_id";
+    public static final String CHANNEL_ID = "group_messages_channel_id";
 
     // Method to create notification channel with high importance
     public static void createNotificationChannel(Context context) {

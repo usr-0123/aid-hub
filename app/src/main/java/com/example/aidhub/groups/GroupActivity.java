@@ -280,7 +280,7 @@ public class GroupActivity extends AppCompatActivity {
     }
 
     private void fetchAndDisplaySenderName(String userId) {
-        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users").child(userId);
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(userId);
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -310,10 +310,10 @@ public class GroupActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
-                    String userId = userSnapshot.getKey(); // Get user ID
+                    String userId = userSnapshot.getKey();
                     String firstName = userSnapshot.child("firstName").getValue(String.class);
                     String lastName = userSnapshot.child("lastName").getValue(String.class);
-                    String userName = firstName + lastName;
+                    String userName = firstName + " " + lastName;
 
                     userList.add(userName);
                     userIds.add(userId);
@@ -337,15 +337,15 @@ public class GroupActivity extends AppCompatActivity {
     }
 
     private void checkUserTypeAndSetButtonVisibility() {
-        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users").child(currentUserId);
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(currentUserId);
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 UserModel user = snapshot.getValue(UserModel.class);
                 if (user != null && ("admin".equals(user.getUserType()) || "Admin".equals(user.getUserType()))) {
-                    addUserButton.setVisibility(View.VISIBLE); // Show button for admins
+                    addUserButton.setVisibility(View.VISIBLE);
                 } else {
-                    addUserButton.setVisibility(View.GONE); // Hide button for non-admins
+                    addUserButton.setVisibility(View.GONE);
                 }
             }
 
