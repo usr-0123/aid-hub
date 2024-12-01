@@ -95,7 +95,7 @@ public class AidFragment extends Fragment {
         aidRequestAdapter = new AidRequestAdapter(aidRequestList, getContext(), chatsRef, seekerId);
         aidRequestsRecyclerView.setAdapter(aidRequestAdapter);
 
-        fetchAidRequests(); // Fetch and display existing aid requests
+        fetchAidRequests();
 
         return rootView;
     }
