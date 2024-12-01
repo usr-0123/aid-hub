@@ -38,7 +38,7 @@ public class AmenitiesFragment extends Fragment {
         newAmenity = view.findViewById(R.id.btnAddAmenity);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         amenityList = new ArrayList<>();
-        adapter = new AmenityAdapter(amenityList);
+        adapter = new AmenityAdapter(amenityList, getContext());
         recyclerView.setAdapter(adapter);
 
         fetchAmenitiesFromFirebase();

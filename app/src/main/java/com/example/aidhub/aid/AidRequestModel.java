@@ -1,5 +1,7 @@
 package com.example.aidhub.aid;
 
+import java.util.List;
+
 public class AidRequestModel {
     private String requestId;
     private String service;
@@ -8,12 +10,13 @@ public class AidRequestModel {
     private String longitude;
     private String seekerId;
     private Boolean approved;
+    private List<String> readBy;
 
     // Default constructor required for calls to DataSnapshot.getValue(AidRequestModel.class)
     public AidRequestModel() {}
 
     // Parameterized constructor
-    public AidRequestModel(String requestId, String service, String description, String latitude, String longitude, String seekerId,  Boolean approved) {
+    public AidRequestModel(String requestId, String service, String description, String latitude, String longitude, String seekerId,  Boolean approved, List<String> readBy) {
         this.requestId = requestId;
         this.service = service;
         this.description = description;
@@ -21,6 +24,7 @@ public class AidRequestModel {
         this.longitude = longitude;
         this.seekerId = seekerId;
         this.approved = approved;
+        this.readBy = readBy;
     }
 
     // Getters and Setters
@@ -72,15 +76,7 @@ public class AidRequestModel {
 
     public void setApproved(Boolean approved) {this.approved = approved;}
 
-    @Override
-    public String toString() {
-        return "AidRequestModel{" +
-                "requestId='" + requestId + '\'' +
-                ", service='" + service + '\'' +
-                ", description='" + description + '\'' +
-                ", latitude='" + latitude + '\'' +
-                ", longitude='" + longitude + '\'' +
-                ", seekerId='" + seekerId + '\'' +
-                '}';
-    }
+    public List<String> getReadBy() {return readBy;}
+
+    public void setReadBy(List<String> readBy) {this.readBy = readBy;}
 }

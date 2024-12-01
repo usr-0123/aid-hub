@@ -1,5 +1,7 @@
 package com.example.aidhub.aid;
 
+import static com.example.aidhub.notification.AidNotificationHelper.showAidNotification;
+
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -191,8 +193,10 @@ public class AidFragment extends Fragment {
         DatabaseReference requestsRef = FirebaseDatabase.getInstance().getReference("aid_requests");
         String requestId = requestsRef.push().getKey();
         Boolean approved = false;
+        List<String> readBy = new ArrayList<>();
+        readBy.add(seekerId);
 
-        AidRequestModel aidRequest = new AidRequestModel(requestId, selectedService, description, userLatitude, userLongitude, seekerId, approved);
+        AidRequestModel aidRequest = new AidRequestModel(requestId, selectedService, description, userLatitude, userLongitude, seekerId, approved, readBy);
         requestsRef.child(requestId).setValue(aidRequest)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(getContext(), "Aid request submitted successfully", Toast.LENGTH_SHORT).show();
@@ -228,6 +232,27 @@ public class AidFragment extends Fragment {
                     AidRequestModel aidRequest = requestSnapshot.getValue(AidRequestModel.class);
                     if (aidRequest != null && !Boolean.TRUE.equals(aidRequest.getApproved())) {
                         aidRequestList.add(aidRequest);
+
+                        if (aidRequest.getReadBy() !=null && aidRequest.getReadBy().contains(seekerId)) {
+                            // Send notification of added request.
+                            showAidNotification(getContext(), aidRequest.getService(), aidRequest.getDescription());
+
+                            // Mark this aid as read
+                            List<String> readByList = new ArrayList<>();
+
+                            readByList.add(seekerId);
+
+                            if (readByList.isEmpty()) {
+                                Toast.makeText(getContext(), "The readBy list is empty.", Toast.LENGTH_SHORT).show();
+                            }
+
+                            // Update the "readBy" field in Firebase with the updated list
+                            requestsRef.child(aidRequest.getRequestId()).child("readBy").setValue(readByList).addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(getContext(), "Aid marked as read.", Toast.LENGTH_SHORT).show();
+                            }).addOnFailureListener(e -> {
+                                Toast.makeText(getContext(), "Unable to mark aid as read.", Toast.LENGTH_SHORT).show();
+                            });
+                        }
                     }
                 }
                 aidRequestAdapter.notifyDataSetChanged();

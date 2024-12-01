@@ -1,5 +1,7 @@
 package com.example.aidhub.aid;
 
+import static com.example.aidhub.notification.AidNotificationHelper.showAidNotification;
+
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
