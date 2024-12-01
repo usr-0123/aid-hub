@@ -1,11 +1,15 @@
 package com.example.aidhub.admin;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
 import com.example.aidhub.R;
 import com.example.aidhub.auth.LoginActivity;
 import com.google.android.material.navigation.NavigationView;
@@ -44,15 +48,23 @@ public class AdminActivity extends AppCompatActivity {
         View headerView = navigationView.getHeaderView(0);
 
         TextView navUserEmail = headerView.findViewById(R.id.adminEmailTextView);
+        ImageView imageView = headerView.findViewById(R.id.imageView);
 
         if (currentUser != null) {
-            navUserEmail.setText(currentUser.getEmail());
+            navUserEmail.setText(currentUser.getEmail());    // Load the user's profile image using Glide
+            Uri photoUri = currentUser.getPhotoUrl();
+            if (photoUri != null) {
+                Glide.with(this)  // 'this' refers to the current Activity or Context
+                        .load(photoUri)  // Load the profile photo URL
+                        .circleCrop()  // Optional: To make the image circular
+                        .into(imageView);  // Set the image into the ImageView
+            }
         }
 
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_admin_aid, R.id.nav_admin_aid_management, R.id.nav_user_management, R.id.nav_admin_chats, R.id.nav_admin_groups, R.id.nav_user_profile)
+                R.id.nav_admin_aid, R.id.nav_admin_amenities, R.id.nav_admin_aid_management, R.id.nav_user_management, R.id.nav_admin_chats, R.id.nav_admin_groups, R.id.nav_user_profile)
                 .setOpenableLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_admin);

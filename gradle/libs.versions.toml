@@ -16,6 +16,7 @@ activity = "1.9.2"
 playServicesLocation = "21.3.0"
 googleAndroidLibrariesMapsplatformSecretsGradlePlugin = "2.0.1"
 playServicesMaps = "19.0.0"
+playServicesMapsVersion = "18.1.0"
 secretsGradlePlugin = "2.0.1"
 
 [libraries]
@@ -39,6 +40,7 @@ navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
+play-services-maps-v1810 = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMapsVersion" }
 secrets-gradle-plugin = { module = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin", version.ref = "secretsGradlePlugin" }
 
 [plugins]

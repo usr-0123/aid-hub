@@ -59,6 +59,9 @@ dependencies {
     // Google service
     implementation(libs.play.services.location)
 
+    // Google maps
+    implementation(libs.play.services.maps.v1810)
+
     // Firebase
     // Firebase Bom
     implementation(platform(libs.firebase.bom))

@@ -10,6 +10,10 @@
             android:title="@string/aid" />
 
         <item
+            android:id="@+id/nav_user_amenities"
+            android:title="@string/amenities" />
+
+        <item
             android:id="@+id/nav_user_chats"
             android:title="@string/chats" />
 
