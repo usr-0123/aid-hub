@@ -233,25 +233,22 @@ public class AidFragment extends Fragment {
                     if (aidRequest != null && !Boolean.TRUE.equals(aidRequest.getApproved())) {
                         aidRequestList.add(aidRequest);
 
-                        if (aidRequest.getReadBy() !=null && aidRequest.getReadBy().contains(seekerId)) {
-                            // Send notification of added request.
+                        // Check if the aid request has already been read
+                        List<String> readByList = aidRequest.getReadBy() != null ? aidRequest.getReadBy() : new ArrayList<>();
+
+                        if (!readByList.contains(seekerId)) {
+                            // Send notification of the new request
                             showAidNotification(getContext(), aidRequest.getService(), aidRequest.getDescription());
 
-                            // Mark this aid as read
-                            List<String> readByList = new ArrayList<>();
-
+                            // Mark this aid as read by adding seekerId to the readBy list
                             readByList.add(seekerId);
-
-                            if (readByList.isEmpty()) {
-                                Toast.makeText(getContext(), "The readBy list is empty.", Toast.LENGTH_SHORT).show();
-                            }
-
-                            // Update the "readBy" field in Firebase with the updated list
-                            requestsRef.child(aidRequest.getRequestId()).child("readBy").setValue(readByList).addOnSuccessListener(aVoid -> {
-                                    Toast.makeText(getContext(), "Aid marked as read.", Toast.LENGTH_SHORT).show();
-                            }).addOnFailureListener(e -> {
-                                Toast.makeText(getContext(), "Unable to mark aid as read.", Toast.LENGTH_SHORT).show();
-                            });
+                            requestsRef.child(aidRequest.getRequestId()).child("readBy").setValue(readByList)
+                                    .addOnSuccessListener(aVoid -> {
+//                                        Toast.makeText(getContext(), "fetchAidRequests", "Aid marked as read: " + aidRequest.getRequestId(), Toast.LENGTH_SHORT).show();
+                                    })
+                                    .addOnFailureListener(e -> {
+//                                        Toast.makeText(getContext(), "fetchAidRequests", "Failed to mark aid as read", Toast.LENGTH_SHORT).show();
+                                    });
                         }
                     }
                 }

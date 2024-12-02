@@ -32,9 +32,8 @@ public class AidRequestAdapter extends RecyclerView.Adapter<AidRequestAdapter.Ai
 
     private final List<AidRequestModel> aidRequestList;
     private final Context context;
-    private final DatabaseReference chatsRef; // Firebase reference for chats
     private final String currentUserId;
-    private DatabaseReference userRef;
+    private final DatabaseReference chatsRef, userRef, aidRequestRef;
 
     public AidRequestAdapter(List<AidRequestModel> aidRequestList, Context context, DatabaseReference chatsRef, String currentUserId) {
         this.aidRequestList = aidRequestList;
@@ -43,6 +42,7 @@ public class AidRequestAdapter extends RecyclerView.Adapter<AidRequestAdapter.Ai
         this.currentUserId = currentUserId;
 
         userRef = FirebaseDatabase.getInstance().getReference("users");
+        aidRequestRef = FirebaseDatabase.getInstance().getReference("aid_requests");
     }
 
     @NonNull
@@ -69,7 +69,7 @@ public class AidRequestAdapter extends RecyclerView.Adapter<AidRequestAdapter.Ai
                     builder.setTitle("Select an Option");
 
                     // Options to display
-                    String[] options = {"Chat", "Location", "Approve", "Cancel"};
+                    String[] options = {"Chat", "Location", "Approve", "Delete", "Cancel"};
 
                     // Set the options in the dialog
                     builder.setItems(options, (dialog, which) -> {
@@ -91,8 +91,7 @@ public class AidRequestAdapter extends RecyclerView.Adapter<AidRequestAdapter.Ai
 
                             case 2: // Approve
                                 // Update the approved field in the database
-                                DatabaseReference aidRequestRef = FirebaseDatabase.getInstance().getReference("aid_requests")
-                                        .child(aidRequest.getRequestId()); // Assuming you have a unique requestId field in AidRequestModel
+                                aidRequestRef.child(aidRequest.getRequestId()); // Assuming you have a unique requestId field in AidRequestModel
 
                                 aidRequestRef.child("approved").setValue(true)
                                         .addOnSuccessListener(aVoid -> Toast.makeText(context, "Request approved!", Toast.LENGTH_SHORT).show())
@@ -100,7 +99,12 @@ public class AidRequestAdapter extends RecyclerView.Adapter<AidRequestAdapter.Ai
                                 Toast.makeText(context, "Approved!", Toast.LENGTH_SHORT).show();
                                 break;
 
-                            case 3: // Cancel
+                            case 3: // Delete
+                                // Handle Delete
+                                deleteRequest(aidRequest.getRequestId());
+                                break;
+
+                            case 4: // Cancel
                                 // Handle Cancel (Do nothing or close dialog)
                                 dialog.dismiss();
                                 break;
@@ -149,6 +153,25 @@ public class AidRequestAdapter extends RecyclerView.Adapter<AidRequestAdapter.Ai
                 });
             }
         });
+    }
+
+    private void deleteRequest(String requestId) {
+        new AlertDialog.Builder(context)
+                .setTitle("Delete Aid Request")
+                .setMessage("Are you sure you want to delete this aid request? This action is not reversible.")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    aidRequestRef.child(requestId).removeValue()
+                            .addOnSuccessListener(aVoid -> {
+                                // Notify the user of successful deletion
+                                Toast.makeText(context, "Aid request deleted successfully.", Toast.LENGTH_SHORT).show();
+                            })
+                            .addOnFailureListener(e -> {
+                                // Handle errors during deletion
+                                Toast.makeText(context, "Failed to delete aid request. Please try again.", Toast.LENGTH_SHORT).show();
+                            });
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                .show();
     }
 
     private void createNewChat(String recipientId) {
