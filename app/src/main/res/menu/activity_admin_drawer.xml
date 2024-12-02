@@ -18,6 +18,10 @@
             android:title="@string/aid_management" />
 
         <item
+            android:id="@+id/nav_admin_aid_reports"
+            android:title="@string/aid_reports" />
+
+        <item
             android:id="@+id/nav_user_management"
             android:title="@string/user" />
 

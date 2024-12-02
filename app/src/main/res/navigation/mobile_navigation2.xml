@@ -47,4 +47,10 @@
         android:label="Amenities"
         tools:layout="@layout/fragment_amenities" />
 
+    <fragment
+        android:id="@+id/nav_admin_aid_reports"
+        android:name="com.example.aidhub.admin.ui.reports.AidReportsFragment"
+        android:label="Aid Reports"
+        tools:layout="@layout/fragment_aid_reports" />
+
 </navigation>

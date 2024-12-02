@@ -16,13 +16,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.aidhub.MapsActivity;
 import com.example.aidhub.R;
 import com.example.aidhub.messaging.MessagingActivity;
+import com.example.aidhub.reports.ReportsModel;
 import com.example.aidhub.users.UserModel;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +37,7 @@ public class AidRequestAdapter extends RecyclerView.Adapter<AidRequestAdapter.Ai
     private final List<AidRequestModel> aidRequestList;
     private final Context context;
     private final String currentUserId;
-    private final DatabaseReference chatsRef, userRef, aidRequestRef;
+    private final DatabaseReference chatsRef, userRef, aidRequestRef, reportsRef;
 
     public AidRequestAdapter(List<AidRequestModel> aidRequestList, Context context, DatabaseReference chatsRef, String currentUserId) {
         this.aidRequestList = aidRequestList;
@@ -43,6 +47,7 @@ public class AidRequestAdapter extends RecyclerView.Adapter<AidRequestAdapter.Ai
 
         userRef = FirebaseDatabase.getInstance().getReference("users");
         aidRequestRef = FirebaseDatabase.getInstance().getReference("aid_requests");
+        reportsRef = FirebaseDatabase.getInstance().getReference("aid_reports");
     }
 
     @NonNull
@@ -63,6 +68,63 @@ public class AidRequestAdapter extends RecyclerView.Adapter<AidRequestAdapter.Ai
         getUserRole(currentUserId, role -> {
 
             if ("admin".equals(role) || "Admin".equals(role)) {
+                holder.itemView.setOnClickListener(v -> {
+                    // Create an AlertDialog builder
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setTitle("Select an Option");
+
+                    // Options to display
+                    String[] options = {"Chat", "Location", "Approve", "Record", "Delete", "Cancel"};
+
+                    // Set the options in the dialog
+                    builder.setItems(options, (dialog, which) -> {
+                        switch (which) {
+                            case 0: // Chat
+                                // Handle Chat option
+                                createNewChat(aidRequest.getSeekerId());
+                                break;
+
+                            case 1: // maps
+                                Intent intent = new Intent(context, MapsActivity.class);
+                                intent.putExtra("latitude", aidRequest.getLatitude());
+                                intent.putExtra("longitude", aidRequest.getLongitude());
+                                intent.putExtra("service", aidRequest.getService());
+                                intent.putExtra("description", aidRequest.getDescription());
+                                intent.putExtra("seekerId", aidRequest.getSeekerId());
+                                context.startActivity(intent);
+                                break;
+
+                            case 2: // Approve
+                                // Update the approved field in the database
+                                aidRequestRef.child(aidRequest.getRequestId()); // Assuming you have a unique requestId field in AidRequestModel
+
+                                aidRequestRef.child("approved").setValue(true)
+                                        .addOnSuccessListener(aVoid -> Toast.makeText(context, "Request approved!", Toast.LENGTH_SHORT).show())
+                                        .addOnFailureListener(e -> Toast.makeText(context, "Failed to approve request.", Toast.LENGTH_SHORT).show());
+                                Toast.makeText(context, "Approved!", Toast.LENGTH_SHORT).show();
+                                break;
+
+                            case 3: // record
+                                // Handle recording these aid
+                                recordRequestData(aidRequest);
+                                break;
+
+                            case 4: // Delete
+                                // Handle Delete
+                                deleteRequest(aidRequest.getRequestId());
+                                break;
+
+                            case 5: // Cancel
+                                // Handle Cancel (Do nothing or close dialog)
+                                dialog.dismiss();
+                                break;
+                        }
+                    });
+
+                    // Show the dialog
+                    builder.show();
+                });
+            } else if (Objects.equals(aidRequest.getSeekerId(), currentUserId)) {
                 holder.itemView.setOnClickListener(v -> {
                     // Create an AlertDialog builder
                     AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -91,7 +153,7 @@ public class AidRequestAdapter extends RecyclerView.Adapter<AidRequestAdapter.Ai
 
                             case 2: // Approve
                                 // Update the approved field in the database
-                                aidRequestRef.child(aidRequest.getRequestId()); // Assuming you have a unique requestId field in AidRequestModel
+                                aidRequestRef.child(aidRequest.getRequestId());
 
                                 aidRequestRef.child("approved").setValue(true)
                                         .addOnSuccessListener(aVoid -> Toast.makeText(context, "Request approved!", Toast.LENGTH_SHORT).show())
@@ -153,6 +215,38 @@ public class AidRequestAdapter extends RecyclerView.Adapter<AidRequestAdapter.Ai
                 });
             }
         });
+    }
+
+    private void recordRequestData(AidRequestModel aidRequest) {
+
+        String reportId = reportsRef.push().getKey();
+        String providedDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        String reportDescription = "";
+        String providerId = "";
+
+        ReportsModel report = new ReportsModel(
+                reportId,
+                aidRequest.getRequestId(),
+                aidRequest.getService(),
+                aidRequest.getDescription(),
+                aidRequest.getLatitude(),
+                aidRequest.getLongitude(),
+                aidRequest.getSeekerId(),
+                aidRequest.getApproved(),
+                aidRequest.getReadBy(),
+                providerId,
+                providedDate,
+                reportDescription
+        );
+
+        // Save the record above to database
+        reportsRef.child(reportId).setValue(report)
+                .addOnCompleteListener(aVoid -> {
+                    Toast.makeText(context, "Aid record recorded successfully.", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(context, "Aid record recorded successfully.", Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void deleteRequest(String requestId) {

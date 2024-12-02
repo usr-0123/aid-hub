@@ -111,4 +111,10 @@
     <string name="confirm_location">Confirm Location</string>
     <string name="select_category">Select category</string>
     <string name="pick_amenity_location">Pick Amenity Location</string>
+    <string name="aid_reports">Aid Reports</string>
+    <string name="service">Service</string>
+    <string name="aid_seeker">Aid Seeker</string>
+    <string name="aid_provider">Aid Provider</string>
+    <string name="provided_date">Provided Date</string>
+    <string name="report_description">Report Description</string>
 </resources>
