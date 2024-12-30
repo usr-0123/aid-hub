@@ -8,11 +8,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.aidhub.R;
 import com.example.aidhub.auth.LoginActivity;
+import com.example.aidhub.users.UserModel;
 import com.google.android.material.navigation.NavigationView;
+
+import androidx.annotation.NonNull;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -22,6 +26,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.aidhub.databinding.ActivityAdminBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class AdminActivity extends AppCompatActivity {
 
@@ -29,6 +38,8 @@ public class AdminActivity extends AppCompatActivity {
     private ActivityAdminBinding binding;
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
+    private DatabaseReference usersRef;
+    private TextView navUserEmail, nameTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,18 +58,13 @@ public class AdminActivity extends AppCompatActivity {
         NavigationView navigationView = binding.adminNavView;
         View headerView = navigationView.getHeaderView(0);
 
-        TextView navUserEmail = headerView.findViewById(R.id.adminEmailTextView);
+        navUserEmail = headerView.findViewById(R.id.adminEmailTextView);
+        nameTextView = headerView.findViewById(R.id.nameTextView);
         ImageView imageView = headerView.findViewById(R.id.imageView);
 
         if (currentUser != null) {
             navUserEmail.setText(currentUser.getEmail());    // Load the user's profile image using Glide
-            Uri photoUri = currentUser.getPhotoUrl();
-            if (photoUri != null) {
-                Glide.with(this)
-                        .load(photoUri)
-                        .circleCrop()
-                        .into(imageView);
-            }
+            fetchUserDetails(currentUser, navUserEmail, nameTextView, imageView);
         }
 
         // Passing each menu ID as a set of Ids because each
@@ -106,6 +112,39 @@ public class AdminActivity extends AppCompatActivity {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();
+    }
+
+    private void fetchUserDetails(FirebaseUser user, TextView emailTextView, TextView nameTextView, ImageView imageView) {
+        // Set user email
+        emailTextView.setText(user.getEmail());
+
+        // Fetch photo URL from Firestore or other user database
+        usersRef = FirebaseDatabase.getInstance().getReference("users");
+        usersRef.child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                UserModel user = snapshot.getValue(UserModel.class);
+
+                if (user != null) {
+                    nameTextView.setText(user.getFirstName() + " " + user.getLastName());
+                    String photoUrl = user.getProfileImage();
+                    if (photoUrl != null && !photoUrl.isEmpty()) {
+                        Glide.with(imageView.getContext())
+                                .load(photoUrl)
+                                .circleCrop()
+                                .into(imageView);
+                    } else {
+                        // Set default profile picture if no photo URL exists
+                        imageView.setImageResource(R.drawable.ic_user_placeholder_foreground);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(imageView.getContext(), "Failed to fetch user details", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override

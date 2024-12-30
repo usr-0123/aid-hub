@@ -6,20 +6,18 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-<Button
-    android:id="@+id/new_chat_form"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    app:layout_constraintTop_toTopOf="parent"
-    android:text="@string/new_chat"
-    android:layout_margin="10dp"/>
+    <Button
+        android:id="@+id/new_chat_form"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        android:text="@string/new_chat"/>
 
-<androidx.recyclerview.widget.RecyclerView
-    android:id="@+id/chatsRecyclerView"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    app:layout_constraintTop_toBottomOf="@+id/new_chat_form"
-    android:layout_margin="16dp"
-    android:scrollbars="vertical"/>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/chatsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/new_chat_form"
+        android:scrollbars="vertical"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
