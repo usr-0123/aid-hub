@@ -32,6 +32,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class GroupActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
@@ -40,7 +41,7 @@ public class GroupActivity extends AppCompatActivity {
     private ImageButton attachmentBtn;
     private MessagesAdapter adapter;
     private List<MessageModel> messageList = new ArrayList<>();
-    private String groupId, groupName, currentUserId, senderName;
+    private String groupId, groupName, groupAdminId, currentUserId, senderName;
     private String userRole = "User";
     private static final int PICK_IMAGE_REQUEST = 1;
     private DatabaseReference userRef;
@@ -61,6 +62,7 @@ public class GroupActivity extends AppCompatActivity {
 
         groupName = getIntent().getStringExtra("groupName");
         groupId = getIntent().getStringExtra("groupId");
+        groupAdminId = getIntent().getStringExtra("groupAdmin");
 
         userRef = FirebaseDatabase.getInstance().getReference("users");
 
@@ -120,7 +122,7 @@ public class GroupActivity extends AppCompatActivity {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if ("Admin".equals(userRole)) {
+        if (Objects.equals(currentUserId, groupAdminId)) {
             menu.findItem(R.id.action_add_users).setVisible(true);
             menu.findItem(R.id.action_edit_group).setVisible(true);
             menu.findItem(R.id.action_delete_group).setVisible(true);

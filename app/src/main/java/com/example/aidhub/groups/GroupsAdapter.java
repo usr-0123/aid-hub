@@ -44,6 +44,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.GroupViewH
             // Pass the group name and other details if needed
             intent.putExtra("groupName", group.getGroupName());
             intent.putExtra("groupId", group.getGroupId());
+            intent.putExtra("groupAdmin", group.getAdminId());
             v.getContext().startActivity(intent);
         });
     }
