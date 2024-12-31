@@ -9,6 +9,9 @@ import android.os.Bundle;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -42,6 +45,7 @@ public class MessagingActivity extends AppCompatActivity {
     private MessagesAdapter messagesAdapter;
     private Button buttonSend;
     private ImageButton attachmentBtn;
+    private DatabaseReference chatsRef;
 
     private static final int STORAGE_PERMISSION_CODE = 1;
 
@@ -56,6 +60,9 @@ public class MessagingActivity extends AppCompatActivity {
         EditText editTextMessage = findViewById(R.id.messageEditText);
         buttonSend = findViewById(R.id.sendMessageButton);
         attachmentBtn = findViewById(R.id.attachmentButton);
+
+        // Chats database reference
+        chatsRef = FirebaseDatabase.getInstance().getReference("chats");
 
         // Set up RecyclerView
         recyclerViewMessages.setHasFixedSize(true);
@@ -99,6 +106,39 @@ public class MessagingActivity extends AppCompatActivity {
             Intent intent = new Intent(Intent.ACTION_PICK);
             intent.setType("image/*");
             startActivityForResult(intent, STORAGE_PERMISSION_CODE);
+        });
+    }
+
+    // Chat's menu action
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.messaging_chat_menu, menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_delete_chat) {
+            deleteChat();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void deleteChat() {
+        // Handle edit chat action
+        chatsRef.child(chatId).removeValue().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(this, "Chat deleted successfully.", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Failed to delete chat.", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(e -> {
+            Toast.makeText(this, "Error: "+e.getMessage(), Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -170,94 +210,94 @@ public class MessagingActivity extends AppCompatActivity {
         });
     }
 
-        private void fetchMessages(String chatId) {
-            DatabaseReference messagesRef = FirebaseDatabase.getInstance().getReference("messages").child(chatId);
+    private void fetchMessages(String chatId) {
+        DatabaseReference messagesRef = FirebaseDatabase.getInstance().getReference("messages").child(chatId);
 
-            messagesRef.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    List<MessageModel> messageList = new ArrayList<>();
+        messagesRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                List<MessageModel> messageList = new ArrayList<>();
 
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        MessageModel message = snapshot.getValue(MessageModel.class);
-                        if (message != null && message.getMessageId() != null) {
-                            messageList.add(message);
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    MessageModel message = snapshot.getValue(MessageModel.class);
+                    if (message != null && message.getMessageId() != null) {
+                        messageList.add(message);
 
-                            if (!chatId.equals(message.getMessageId())) {
-                                markMessageAsRead(chatId, message.getMessageId());}
-                        }
+                        if (!chatId.equals(message.getMessageId())) {
+                            markMessageAsRead(chatId, message.getMessageId());}
+                    }
 
-                        // Fetch the readBy list
-                        List<String> readByList = new ArrayList<>();
-                        DataSnapshot readBySnapshot = snapshot.child("readBy");
+                    // Fetch the readBy list
+                    List<String> readByList = new ArrayList<>();
+                    DataSnapshot readBySnapshot = snapshot.child("readBy");
 
-                        if (readBySnapshot.exists()) { // Check if the "readBy" node exists
-                            for (DataSnapshot childSnapshot : readBySnapshot.getChildren()) {
-                                String userId = childSnapshot.getValue(String.class);
-                                if (userId != null) {
-                                    readByList.add(userId);
-                                }
+                    if (readBySnapshot.exists()) { // Check if the "readBy" node exists
+                        for (DataSnapshot childSnapshot : readBySnapshot.getChildren()) {
+                            String userId = childSnapshot.getValue(String.class);
+                            if (userId != null) {
+                                readByList.add(userId);
                             }
                         }
-
-                        //  If the current user hasn't read this report, trigger a notification
-                        if (!readByList.contains(currentUserId)) {
-                            showChatNotification(MessagingActivity.this, chatId, selectedUserId, participantName, message.getMessage());
-                        }
                     }
 
-                    // Pass currentUserId to the adapter
-                    displayMessages(messageList, currentUserId);
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                    Toast.makeText(MessagingActivity.this, "Error loading messages", Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-
-        private void markMessageAsRead(String chatId, String messageId) {
-            if (chatId == null || messageId == null) {return;}
-            // Reference to the specific message's "readBy" field in Firebase
-            DatabaseReference messageRef = FirebaseDatabase.getInstance().getReference("messages")
-                    .child(chatId)
-                    .child(messageId)
-                    .child("readBy");
-
-            messageRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    List<String> readByList = new ArrayList<>();
-                    if (dataSnapshot.exists()) {
-                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                            readByList.add(snapshot.getValue(String.class));
-                        }
-                    }
-
-                    // If the current user hasn't read the message, mark it as read
+                    //  If the current user hasn't read this report, trigger a notification
                     if (!readByList.contains(currentUserId)) {
-                        readByList.add(currentUserId);
-
-                        // Update the "readBy" field in Firebase with the updated list
-                        messageRef.setValue(readByList).addOnSuccessListener(aVoid -> {
-                            // Optional: Handle success if needed (e.g., showing a read confirmation)
-                        }).addOnFailureListener(e -> {
-                            // Optional: Handle failure if needed
-                        });
+                        showChatNotification(MessagingActivity.this, chatId, selectedUserId, participantName, message.getMessage());
                     }
                 }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                    // Handle possible errors (e.g., logging or showing a message to the user)
-                }
-            });
-        }
+                // Pass currentUserId to the adapter
+                displayMessages(messageList, currentUserId);
+            }
 
-        private void displayMessages(List<MessageModel> messageList, String currentUserId) {
-            // Update the adapter with new messages
-            messagesAdapter = new MessagesAdapter(participantName, messageList, currentUserId);
-            recyclerViewMessages.setAdapter(messagesAdapter);
-        }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(MessagingActivity.this, "Error loading messages", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
+    private void markMessageAsRead(String chatId, String messageId) {
+        if (chatId == null || messageId == null) {return;}
+        // Reference to the specific message's "readBy" field in Firebase
+        DatabaseReference messageRef = FirebaseDatabase.getInstance().getReference("messages")
+                .child(chatId)
+                .child(messageId)
+                .child("readBy");
+
+        messageRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                List<String> readByList = new ArrayList<>();
+                if (dataSnapshot.exists()) {
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        readByList.add(snapshot.getValue(String.class));
+                    }
+                }
+
+                // If the current user hasn't read the message, mark it as read
+                if (!readByList.contains(currentUserId)) {
+                    readByList.add(currentUserId);
+
+                    // Update the "readBy" field in Firebase with the updated list
+                    messageRef.setValue(readByList).addOnSuccessListener(aVoid -> {
+                        // Optional: Handle success if needed (e.g., showing a read confirmation)
+                    }).addOnFailureListener(e -> {
+                        // Optional: Handle failure if needed
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle possible errors (e.g., logging or showing a message to the user)
+            }
+        });
+    }
+
+    private void displayMessages(List<MessageModel> messageList, String currentUserId) {
+        // Update the adapter with new messages
+        messagesAdapter = new MessagesAdapter(participantName, messageList, currentUserId);
+        recyclerViewMessages.setAdapter(messagesAdapter);
+    }
+}

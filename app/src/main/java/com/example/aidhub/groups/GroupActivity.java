@@ -65,6 +65,7 @@ public class GroupActivity extends AppCompatActivity {
         groupAdminId = getIntent().getStringExtra("groupAdmin");
 
         userRef = FirebaseDatabase.getInstance().getReference("users");
+//        groupsRef = FirebaseDatabase.getInstance().getReference("groups");
 
         userRef.child(currentUserId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -149,17 +150,17 @@ public class GroupActivity extends AppCompatActivity {
         }
 
         if (id == R.id.action_edit_group) {
-            editGroup();
+            editGroup(groupId);
             return true;
         }
 
         if (id == R.id.action_delete_group) {
-            deleteGroup();
+            deleteGroup(groupId);
             return true;
         }
 
         if (id == R.id.action_leave_group) {
-            leaveGroup();
+            leaveGroup(groupId);
             return true;
         }
 
@@ -167,19 +168,58 @@ public class GroupActivity extends AppCompatActivity {
     }
 
     // Menu action methods
-    private void editGroup() {
+    private void editGroup(String groupId) {
         // Handle edit group action
+        showEditGroupNameDialog(groupId);
         Toast.makeText(this, "Edit Group selected", Toast.LENGTH_SHORT).show();
     }
 
-    private void deleteGroup() {
+    private void deleteGroup(String groupId) {
+        DatabaseReference groupsRef = FirebaseDatabase.getInstance().getReference("groups").child(groupId);
         // Handle edit group action
-        Toast.makeText(this, "Delete Group selected", Toast.LENGTH_SHORT).show();
+        groupsRef.removeValue().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(this, "Group deleted successfully.", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Failed to delete group.", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(e -> {
+            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        });
     }
 
-    private void leaveGroup() {
-        // Handle edit group action
-        Toast.makeText(this, "Leave Group selected", Toast.LENGTH_SHORT).show();
+    private void leaveGroup(String groupId) {
+        DatabaseReference groupRef = FirebaseDatabase.getInstance().getReference("groups").child(groupId);
+
+        groupRef.child("members").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    for (DataSnapshot memberSnapshot : snapshot.getChildren()) {
+                        String memberId = memberSnapshot.getValue(String.class);
+                        if (currentUserId != null && currentUserId.equals(memberId)) {
+                            // Remove the user from the members node
+                            memberSnapshot.getRef().removeValue().addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    Toast.makeText(GroupActivity.this, "Left the group successfully.", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(GroupActivity.this, "Failed to leave the group.", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                            return; // Exit after removing the user
+                        }
+                    }
+                    Toast.makeText(GroupActivity.this, "User not found in the group.", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(GroupActivity.this, "Group details not found.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(GroupActivity.this, "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -281,7 +321,7 @@ public class GroupActivity extends AppCompatActivity {
         });
     }
 
-    private void sendGroupMessageNotification(String groupId,String sender, String message) {
+    private void sendGroupMessageNotification(String groupId, String sender, String message) {
         // Use the NotificationHelper to send a notification with the report details
         MessageNotificationHelper.showNotification(this, groupId, sender, message);
     }
@@ -378,7 +418,7 @@ public class GroupActivity extends AppCompatActivity {
                     senderName = user.getFirstName() + " " + user.getLastName();
                     // call the xml holder here
                 } else {
-                     Toast.makeText(GroupActivity.this, "Error fetching user details", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(GroupActivity.this, "Error fetching user details", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -423,5 +463,39 @@ public class GroupActivity extends AppCompatActivity {
                 Toast.makeText(GroupActivity.this, "Failed to load users", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void showEditGroupNameDialog(String groupId) {
+        // Create an AlertDialog builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Edit Group Name");
+
+        // Add an input field to the dialog
+        EditText input = new EditText(this);
+        input.setHint("Enter new group name");
+        builder.setView(input);
+
+        // Set up the dialog buttons
+        builder.setPositiveButton("Save", (dialog, which) -> {
+            String newGroupName = input.getText().toString().trim();
+            if (!TextUtils.isEmpty(newGroupName)) {
+                DatabaseReference groupRef = FirebaseDatabase.getInstance().getReference("groups").child(groupId);
+                groupRef.child("groupName").setValue(newGroupName).addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(this, "Group name updated", Toast.LENGTH_SHORT).show();
+                        if (getSupportActionBar() != null) {
+                            getSupportActionBar().setTitle(newGroupName);
+                        }
+                    } else {
+                        Toast.makeText(this, "Failed to update group name", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } else {
+                Toast.makeText(this, "Group name cannot be empty", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+        builder.show();
     }
 }
