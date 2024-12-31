@@ -10,6 +10,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -34,12 +36,14 @@ import java.util.List;
 public class GroupActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private EditText messageInputEditText;
-    private Button sendButton, addUserButton;
+    private Button sendButton;
     private ImageButton attachmentBtn;
     private MessagesAdapter adapter;
     private List<MessageModel> messageList = new ArrayList<>();
-    private String groupId, currentUserId, senderName;
+    private String groupId, groupName, currentUserId, senderName;
+    private String userRole = "User";
     private static final int PICK_IMAGE_REQUEST = 1;
+    private DatabaseReference userRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,8 +59,32 @@ public class GroupActivity extends AppCompatActivity {
             return;
         }
 
-        String groupName = getIntent().getStringExtra("groupName");
+        groupName = getIntent().getStringExtra("groupName");
         groupId = getIntent().getStringExtra("groupId");
+
+        userRef = FirebaseDatabase.getInstance().getReference("users");
+
+        userRef.child(currentUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                UserModel user = snapshot.getValue(UserModel.class);
+
+                if (user != null) {
+                    userRole = user.getUserType();
+                } else {
+                    userRole = "None";
+                }
+
+                invalidateOptionsMenu(); // Refresh menu after fetching the role
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                userRole = "User";
+                Toast.makeText(GroupActivity.this, "Failed to fetch user type", Toast.LENGTH_SHORT).show();
+                invalidateOptionsMenu(); // Refresh menu after fetching the role
+            }
+        });
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(groupName);
@@ -65,10 +93,7 @@ public class GroupActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.groupMessagesRecyclerView);
         messageInputEditText = findViewById(R.id.messageInputEditText);
         sendButton = findViewById(R.id.sendButton);
-        addUserButton = findViewById(R.id.addUserButton);
         attachmentBtn = findViewById(R.id.attachmentButton);
-
-        checkUserTypeAndSetButtonVisibility();
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new MessagesAdapter(senderName, messageList, currentUserId);
@@ -91,6 +116,68 @@ public class GroupActivity extends AppCompatActivity {
             intent.setType("image/*");
             startActivityForResult(intent, PICK_IMAGE_REQUEST);
         });
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if ("Admin".equals(userRole)) {
+            menu.findItem(R.id.action_add_users).setVisible(true);
+            menu.findItem(R.id.action_edit_group).setVisible(true);
+            menu.findItem(R.id.action_delete_group).setVisible(true);
+        }
+
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    // Group's menu action
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.group_chat_menu, menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_add_users) {
+            showUserSelectionDialog(groupId);
+            return true;
+        }
+
+        if (id == R.id.action_edit_group) {
+            editGroup();
+            return true;
+        }
+
+        if (id == R.id.action_delete_group) {
+            deleteGroup();
+            return true;
+        }
+
+        if (id == R.id.action_leave_group) {
+            leaveGroup();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    // Menu action methods
+    private void editGroup() {
+        // Handle edit group action
+        Toast.makeText(this, "Edit Group selected", Toast.LENGTH_SHORT).show();
+    }
+
+    private void deleteGroup() {
+        // Handle edit group action
+        Toast.makeText(this, "Delete Group selected", Toast.LENGTH_SHORT).show();
+    }
+
+    private void leaveGroup() {
+        // Handle edit group action
+        Toast.makeText(this, "Leave Group selected", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -334,29 +421,5 @@ public class GroupActivity extends AppCompatActivity {
                 Toast.makeText(GroupActivity.this, "Failed to load users", Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    private void checkUserTypeAndSetButtonVisibility() {
-        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(currentUserId);
-        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                UserModel user = snapshot.getValue(UserModel.class);
-                if (user != null && ("admin".equals(user.getUserType()) || "Admin".equals(user.getUserType()))) {
-                    addUserButton.setVisibility(View.VISIBLE);
-                } else {
-                    addUserButton.setVisibility(View.GONE);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(GroupActivity.this, "Failed to fetch user type", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    public void onAddUserButtonClick(View view) {
-        showUserSelectionDialog(groupId);
     }
 }
